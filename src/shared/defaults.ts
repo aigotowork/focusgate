@@ -1,4 +1,5 @@
 import type { AppSettings, RuleGroup } from "./types";
+import { DEFAULT_SLEEP_BLOCK_PAGE } from "./block-page";
 
 export const DEFAULT_COMMITMENT = "明天早上的我，会感谢现在睡觉的我。";
 export const DEFAULT_RULE_GROUP_ID = "goodnight-boundary";
@@ -19,6 +20,7 @@ export const DEFAULT_RULE_GROUP: RuleGroup = {
     { id: "reddit-com", host: "reddit.com", createdAt: new Date(0).toISOString() }
   ],
   commitment: DEFAULT_COMMITMENT,
+  blockPage: DEFAULT_SLEEP_BLOCK_PAGE,
   reminderMinutes: 30,
   blockMode: "standard",
   unlockMinutes: 10,

@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  background: #020617;
+  color-scheme: light;
+  background: #f7f5ef;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,8 +19,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #020617;
-  color: #f1f5f9;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.08), transparent 28rem),
+    linear-gradient(180deg, #fbfaf6 0%, #f2efe7 100%);
+  color: #1f2937;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
@@ -35,29 +37,30 @@ select {
   min-height: 100vh;
 }
 
-.night-panel {
+.soft-panel {
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.88)),
-    #0f172a;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 246, 239, 0.9)),
+    #fbfaf6;
 }
 
 .field {
   width: 100%;
   border-radius: 0.5rem;
-  border: 1px solid #334155;
-  background: #020617;
+  border: 1px solid #cbd5e1;
+  background: #fffdf8;
   padding: 0.75rem 1rem;
-  color: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
 }
 
 .field::placeholder {
-  color: #475569;
+  color: #94a3b8;
 }
 
 .field:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 1px #6366f1;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14);
 }
 
 .field:disabled {

@@ -1,5 +1,16 @@
-import type { AccessDecision, AppSettings, BlockMode, GuardEvent, RuleGroup, SiteRule, UnlockDecision } from "./types";
-import { getSleepSessionId, isScheduleActive } from "./time";
+import type {
+  AccessDecision,
+  AppSettings,
+  BlockMode,
+  GuardEvent,
+  PageReminderDecision,
+  PopupPageContext,
+  RuleGroup,
+  SiteRule,
+  UnlockDecision
+} from "./types";
+import { BRAND } from "./brand";
+import { getReminderWindowState, getSleepSessionId, isScheduleActive } from "./time";
 
 export function extractHostnameFromUrl(value: string): string | undefined {
   try {
@@ -99,6 +110,75 @@ export function evaluateAccess(url: string, settings: AppSettings, date = new Da
   };
 }
 
+export function evaluatePageReminder(url: string, settings: AppSettings, date = new Date()): PageReminderDecision {
+  if (url.startsWith("chrome-extension://") || url.startsWith("moz-extension://")) {
+    return { shouldShow: false, reason: "extension_page" };
+  }
+
+  const host = extractHostnameFromUrl(url);
+  if (!host) {
+    return { shouldShow: false, reason: "not_http" };
+  }
+
+  if (settings.pauseUntil && new Date(settings.pauseUntil).getTime() > date.getTime()) {
+    return { shouldShow: false, reason: "paused", host };
+  }
+
+  const activeGroups = settings.ruleGroups.filter((group) => group.enabled && group.schedule.enabled);
+  if (activeGroups.length === 0) {
+    return { shouldShow: false, reason: "disabled", host };
+  }
+
+  const hostGroups = activeGroups.filter((group) => group.sites.some((rule) => matchesSiteRule(host, rule)));
+  if (hostGroups.length === 0) {
+    return { shouldShow: false, reason: "not_listed", host };
+  }
+
+  if (hostGroups.some((group) => isScheduleActive(group.schedule, date) && !hasActiveUnlock(settings, group, host, date))) {
+    return { shouldShow: false, reason: "already_blocked", host };
+  }
+
+  const candidates = hostGroups
+    .map((group) => ({ group, reminder: getReminderWindowState(group.schedule, group.reminderMinutes, date) }))
+    .filter(({ group, reminder }) => {
+      if (!reminder.active || !reminder.endsAt) {
+        return false;
+      }
+      return !hasActiveUnlock(settings, group, host, new Date(reminder.endsAt));
+    });
+
+  if (candidates.length === 0) {
+    return { shouldShow: false, reason: "outside_window", host };
+  }
+
+  const { group, reminder } = candidates.sort((a, b) => {
+    const timeDelta =
+      (a.reminder.remainingMs ?? Number.MAX_SAFE_INTEGER) - (b.reminder.remainingMs ?? Number.MAX_SAFE_INTEGER);
+    if (timeDelta !== 0) {
+      return timeDelta;
+    }
+    const modeDelta = modeRank(b.group.blockMode) - modeRank(a.group.blockMode);
+    if (modeDelta !== 0) {
+      return modeDelta;
+    }
+    return 0;
+  })[0];
+
+  return {
+    shouldShow: true,
+    reason: "ready",
+    host,
+    ruleGroupId: group.id,
+    ruleGroupName: group.name,
+    commitment: group.commitment,
+    reminderMinutes: group.reminderMinutes,
+    remainingMs: reminder.remainingMs,
+    sessionId: reminder.sessionId,
+    scheduleStartAt: reminder.endsAt,
+    blockMode: group.blockMode
+  };
+}
+
 export function evaluateUnlockLimit(
   group: RuleGroup,
   events: GuardEvent[],
@@ -117,6 +197,111 @@ export function evaluateUnlockLimit(
     limit,
     sessionId,
     ruleGroupId: group.id
+  };
+}
+
+export function getPopupPageContext(settings: AppSettings, url: string | undefined, date = new Date()): PopupPageContext {
+  const host = url ? extractHostnameFromUrl(url) : undefined;
+  const decision = url ? evaluateAccess(url, settings, date) : undefined;
+  const reminder = url ? evaluatePageReminder(url, settings, date) : undefined;
+  const activeGroups = settings.ruleGroups.filter((group) => group.enabled && isScheduleActive(group.schedule, date));
+  const upcomingGroups = settings.ruleGroups.filter(
+    (group) => group.enabled && getReminderWindowState(group.schedule, group.reminderMinutes, date).active
+  );
+  const hostGroups = host
+    ? settings.ruleGroups.filter(
+        (group) => group.enabled && group.schedule.enabled && group.sites.some((rule) => matchesSiteRule(host, rule))
+      )
+    : [];
+  const listedGroup = hostGroups.length > 0 ? chooseRuleGroup(hostGroups) : undefined;
+  const matchedRuleGroupId =
+    decision?.ruleGroupId ?? (reminder?.shouldShow ? reminder.ruleGroupId : undefined) ?? listedGroup?.id;
+  const matchedRuleGroupName =
+    decision?.ruleGroupName ?? (reminder?.shouldShow ? reminder.ruleGroupName : undefined) ?? listedGroup?.name;
+  const selectedGroup =
+    getRuleGroupById(settings, matchedRuleGroupId) ??
+    settings.ruleGroups.find((group) => group.enabled) ??
+    settings.ruleGroups[0];
+  const listedInSelectedGroup =
+    Boolean(host && selectedGroup?.sites.some((rule) => matchesSiteRule(host, rule)));
+  const base = {
+    host: host ?? "当前页面",
+    matchedRuleGroupId,
+    matchedRuleGroupName,
+    selectedRuleGroupId: selectedGroup?.id,
+    canAddToSelectedGroup: Boolean(host && selectedGroup && !listedInSelectedGroup),
+    activeRuleGroupCount: activeGroups.length,
+    upcomingRuleGroupCount: upcomingGroups.length
+  };
+
+  if (!url || !host || decision?.reason === "not_http" || decision?.reason === "extension_page") {
+    return {
+      ...base,
+      status: "not_http",
+      statusLabel: "当前页面不可加入",
+      statusDetail: "请切换到普通网页后再管理规则组。"
+    };
+  }
+
+  if (decision?.reason === "paused") {
+    return {
+      ...base,
+      status: "paused",
+      statusLabel: `${BRAND.nameZh}已暂停`,
+      statusDetail: "暂停结束后，命中的规则组会继续生效。"
+    };
+  }
+
+  if (decision?.allowed === false) {
+    return {
+      ...base,
+      status: "blocked",
+      statusLabel: "当前页面会被阻断",
+      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 正在保护这个网站。` : "有规则正在保护这个网站。"
+    };
+  }
+
+  if (decision?.reason === "unlocked") {
+    return {
+      ...base,
+      status: "unlocked",
+      statusLabel: "当前页面已临时解锁",
+      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 的临时解锁仍在有效期内。` : "临时解锁仍在有效期内。"
+    };
+  }
+
+  if (reminder?.shouldShow) {
+    return {
+      ...base,
+      status: "upcoming",
+      statusLabel: "当前页面即将受限",
+      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 即将开始，请准备收尾。` : "限制规则即将开始，请准备收尾。"
+    };
+  }
+
+  if (decision?.reason === "outside_schedule") {
+    return {
+      ...base,
+      status: "outside_schedule",
+      statusLabel: "当前页面在规则时间外",
+      statusDetail: "这个网站已加入规则组，但现在不是限制时段。"
+    };
+  }
+
+  if (decision?.reason === "disabled") {
+    return {
+      ...base,
+      status: "inactive",
+      statusLabel: "没有启用的限制规则",
+      statusDetail: `启用规则组后，${BRAND.nameZh}会按时间自动执行。`
+    };
+  }
+
+  return {
+    ...base,
+    status: "not_listed",
+    statusLabel: "当前页面未加入规则",
+    statusDetail: selectedGroup ? `可以把它加入 ${selectedGroup.name}。` : "请先创建一个规则组。"
   };
 }
 

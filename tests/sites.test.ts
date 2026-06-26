@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS } from "../src/shared/defaults";
-import { evaluateAccess, evaluateUnlockLimit, extractHostnameFromUrl, matchesSiteRule } from "../src/shared/sites";
+import {
+  evaluateAccess,
+  evaluatePageReminder,
+  evaluateUnlockLimit,
+  extractHostnameFromUrl,
+  getPopupPageContext,
+  matchesSiteRule
+} from "../src/shared/sites";
 import type { RuleGroup } from "../src/shared/types";
 
 function localDate(year: number, month: number, day: number, hour: number, minute = 0): Date {
@@ -188,5 +195,167 @@ describe("site rules", () => {
 
     expect(decision.allowed).toBe(false);
     expect(decision.ruleGroupId).toBe("work-b");
+  });
+
+  it("shows a page reminder for a listed site inside the reminder window", () => {
+    const decision = evaluatePageReminder("https://bilibili.com/video", { ...DEFAULT_SETTINGS, ruleGroups: [workGroup()] }, localDate(2026, 6, 22, 8, 50));
+
+    expect(decision.shouldShow).toBe(true);
+    expect(decision.reason).toBe("ready");
+    expect(decision.host).toBe("bilibili.com");
+    expect(decision.ruleGroupName).toBe("工作时间专注");
+    expect(decision.remainingMs).toBe(10 * 60000);
+    expect(decision.scheduleStartAt).toBe(localDate(2026, 6, 22, 9, 0).toISOString());
+  });
+
+  it("does not show a page reminder for unlisted sites", () => {
+    const decision = evaluatePageReminder("https://example.com", { ...DEFAULT_SETTINGS, ruleGroups: [workGroup()] }, localDate(2026, 6, 22, 8, 50));
+
+    expect(decision.shouldShow).toBe(false);
+    expect(decision.reason).toBe("not_listed");
+  });
+
+  it("does not show a page reminder after the site is already blocked", () => {
+    const decision = evaluatePageReminder("https://bilibili.com/video", { ...DEFAULT_SETTINGS, ruleGroups: [workGroup()] }, localDate(2026, 6, 22, 9, 5));
+
+    expect(decision.shouldShow).toBe(false);
+    expect(decision.reason).toBe("already_blocked");
+  });
+
+  it("chooses the stricter matching group for page reminders", () => {
+    const gentle = workGroup({ id: "gentle", name: "温和提醒", blockMode: "gentle" });
+    const strict = workGroup({ id: "strict", name: "严格提醒", blockMode: "strict" });
+    const decision = evaluatePageReminder(
+      "https://bilibili.com/video",
+      { ...DEFAULT_SETTINGS, ruleGroups: [gentle, strict] },
+      localDate(2026, 6, 22, 8, 50)
+    );
+
+    expect(decision.shouldShow).toBe(true);
+    expect(decision.ruleGroupId).toBe("strict");
+  });
+
+  it("chooses the nearest upcoming block for page reminder countdowns", () => {
+    const soon = workGroup({
+      id: "soon-standard",
+      name: "马上开始",
+      blockMode: "standard",
+      schedule: {
+        enabled: true,
+        startTime: "09:00",
+        endTime: "18:00",
+        days: [1, 2, 3, 4, 5]
+      }
+    });
+    const laterStrict = workGroup({
+      id: "later-strict",
+      name: "稍后严格",
+      blockMode: "strict",
+      schedule: {
+        enabled: true,
+        startTime: "09:30",
+        endTime: "18:00",
+        days: [1, 2, 3, 4, 5]
+      },
+      reminderMinutes: 45
+    });
+    const decision = evaluatePageReminder(
+      "https://bilibili.com/video",
+      { ...DEFAULT_SETTINGS, ruleGroups: [laterStrict, soon] },
+      localDate(2026, 6, 22, 8, 50)
+    );
+
+    expect(decision.shouldShow).toBe(true);
+    expect(decision.ruleGroupId).toBe("soon-standard");
+    expect(decision.remainingMs).toBe(10 * 60000);
+  });
+
+  it("does not show a page reminder when the upcoming block is unlocked", () => {
+    const decision = evaluatePageReminder(
+      "https://bilibili.com/video",
+      {
+        ...DEFAULT_SETTINGS,
+        ruleGroups: [workGroup()],
+        unlocks: [
+          {
+            ruleGroupId: "work-focus",
+            host: "bilibili.com",
+            unlockedAt: localDate(2026, 6, 22, 8, 45).toISOString(),
+            expiresAt: localDate(2026, 6, 22, 9, 30).toISOString(),
+            durationMinutes: 45,
+            mode: "standard",
+            sessionId: "2026-06-22"
+          }
+        ]
+      },
+      localDate(2026, 6, 22, 8, 50)
+    );
+
+    expect(decision.shouldShow).toBe(false);
+    expect(decision.reason).toBe("outside_window");
+  });
+
+  it("builds blocked popup context for the current page matching a non-first group", () => {
+    const context = getPopupPageContext(
+      { ...DEFAULT_SETTINGS, ruleGroups: [DEFAULT_SETTINGS.ruleGroups[0], workGroup()] },
+      "https://bilibili.com/video",
+      localDate(2026, 6, 22, 10, 0)
+    );
+
+    expect(context.status).toBe("blocked");
+    expect(context.host).toBe("bilibili.com");
+    expect(context.matchedRuleGroupId).toBe("work-focus");
+    expect(context.selectedRuleGroupId).toBe("work-focus");
+    expect(context.canAddToSelectedGroup).toBe(false);
+  });
+
+  it("builds upcoming popup context for a page inside its reminder window", () => {
+    const context = getPopupPageContext(
+      { ...DEFAULT_SETTINGS, ruleGroups: [workGroup()] },
+      "https://bilibili.com/video",
+      localDate(2026, 6, 22, 8, 50)
+    );
+
+    expect(context.status).toBe("upcoming");
+    expect(context.matchedRuleGroupName).toBe("工作时间专注");
+    expect(context.upcomingRuleGroupCount).toBe(1);
+  });
+
+  it("keeps rule group context when the current page is outside its schedule", () => {
+    const context = getPopupPageContext(
+      { ...DEFAULT_SETTINGS, ruleGroups: [workGroup()] },
+      "https://bilibili.com/video",
+      localDate(2026, 6, 22, 20, 0)
+    );
+
+    expect(context.status).toBe("outside_schedule");
+    expect(context.matchedRuleGroupId).toBe("work-focus");
+    expect(context.canAddToSelectedGroup).toBe(false);
+  });
+
+  it("falls back to the first enabled group when the current page is not listed", () => {
+    const context = getPopupPageContext(
+      { ...DEFAULT_SETTINGS, ruleGroups: [DEFAULT_SETTINGS.ruleGroups[0], workGroup()] },
+      "https://example.com",
+      localDate(2026, 6, 22, 10, 0)
+    );
+
+    expect(context.status).toBe("not_listed");
+    expect(context.selectedRuleGroupId).toBe("goodnight-boundary");
+    expect(context.canAddToSelectedGroup).toBe(true);
+  });
+
+  it("uses strictness precedence for overlapping popup page matches", () => {
+    const gentle = workGroup({ id: "gentle", name: "温和规则", blockMode: "gentle" });
+    const strict = workGroup({ id: "strict", name: "严格规则", blockMode: "strict" });
+    const context = getPopupPageContext(
+      { ...DEFAULT_SETTINGS, ruleGroups: [gentle, strict] },
+      "https://bilibili.com/video",
+      localDate(2026, 6, 22, 10, 0)
+    );
+
+    expect(context.status).toBe("blocked");
+    expect(context.matchedRuleGroupId).toBe("strict");
+    expect(context.selectedRuleGroupId).toBe("strict");
   });
 });

@@ -1,4 +1,5 @@
 import { DEFAULT_RULE_GROUP, DEFAULT_SETTINGS } from "./defaults";
+import { getDefaultBlockPageForRuleGroup, normalizeBlockPageConfig } from "./block-page";
 import type { AppSettings, GuardEvent, RuleGroup, SiteRule, UnlockSession } from "./types";
 
 const SETTINGS_KEY = "goodnightGuard.settings";
@@ -14,10 +15,16 @@ function hasChromeStorage(): boolean {
   return typeof chrome !== "undefined" && Boolean(chrome.storage?.local);
 }
 
-type LegacySettings = Partial<AppSettings> & {
+type LegacyRuleGroup = Omit<Partial<RuleGroup>, "blockPage"> & {
+  blockPage?: Partial<RuleGroup["blockPage"]>;
+};
+
+type LegacySettings = Omit<Partial<AppSettings>, "ruleGroups"> & {
+  ruleGroups?: LegacyRuleGroup[];
   schedule?: RuleGroup["schedule"];
   sites?: SiteRule[];
   commitment?: string;
+  blockPage?: Partial<RuleGroup["blockPage"]>;
   unlockMinutes?: number;
   reminderMinutes?: number;
   blockMode?: RuleGroup["blockMode"];
@@ -39,17 +46,21 @@ export function normalizeStoredSettings(value?: LegacySettings): AppSettings {
 
 function normalizeRuleGroups(value?: LegacySettings): RuleGroup[] {
   if (value?.ruleGroups && value.ruleGroups.length > 0) {
-    return value.ruleGroups.map((group) => ({
-      ...DEFAULT_RULE_GROUP,
-      ...group,
-      schedule: {
-        ...DEFAULT_RULE_GROUP.schedule,
-        ...group.schedule,
-        days: group.schedule?.days ?? DEFAULT_RULE_GROUP.schedule.days
-      },
-      sites: group.sites ?? [],
-      maxUnlocksPerSession: group.maxUnlocksPerSession ?? DEFAULT_RULE_GROUP.maxUnlocksPerSession
-    }));
+    return value.ruleGroups.map((group) => {
+      const fallbackBlockPage = getDefaultBlockPageForRuleGroup(group);
+      return {
+        ...DEFAULT_RULE_GROUP,
+        ...group,
+        schedule: {
+          ...DEFAULT_RULE_GROUP.schedule,
+          ...group.schedule,
+          days: group.schedule?.days ?? DEFAULT_RULE_GROUP.schedule.days
+        },
+        sites: group.sites ?? [],
+        blockPage: normalizeBlockPageConfig(group.blockPage, fallbackBlockPage),
+        maxUnlocksPerSession: group.maxUnlocksPerSession ?? DEFAULT_RULE_GROUP.maxUnlocksPerSession
+      };
+    });
   }
 
   if (value?.schedule || value?.sites || value?.commitment) {
@@ -63,6 +74,7 @@ function normalizeRuleGroups(value?: LegacySettings): RuleGroup[] {
         },
         sites: value.sites ?? DEFAULT_RULE_GROUP.sites,
         commitment: value.commitment ?? DEFAULT_RULE_GROUP.commitment,
+        blockPage: normalizeBlockPageConfig(value.blockPage, DEFAULT_RULE_GROUP.blockPage),
         unlockMinutes: value.unlockMinutes ?? DEFAULT_RULE_GROUP.unlockMinutes,
         reminderMinutes: value.reminderMinutes ?? DEFAULT_RULE_GROUP.reminderMinutes,
         blockMode: value.blockMode ?? DEFAULT_RULE_GROUP.blockMode,

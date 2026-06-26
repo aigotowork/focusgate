@@ -1,21 +1,31 @@
 {
   "manifest_version": 3,
-  "name": "晚安边界",
-  "short_name": "GoodNight Guard",
+  "name": "守界",
+  "short_name": "FocusGate",
   "version": "0.1.0",
-  "description": "到点提醒睡觉，并在晚安时间阻断高刺激网站。",
+  "description": "用规则组为睡眠、工作和戒断场景建立可执行的网站边界。",
   "permissions": ["activeTab", "alarms", "notifications", "storage", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "晚安边界"
+    "default_title": "守界"
   },
   "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
     "128": "icon-128.png"
   },
   "options_page": "options.html",
   "background": {
     "service_worker": "assets/background.js",
     "type": "module"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["assets/reminder-overlay.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

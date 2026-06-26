@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusGate · 守界 品牌设计</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+      background: #f7f7fb;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    .section {
+      padding: 64px 48px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 32px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: 
+        radial-gradient(ellipse 70% 50% at 50% 40%, rgba(99,102,241,0.08) 0%, transparent 70%),
+        #ffffff;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .logo-mark {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 32px;
+      filter: drop-shadow(0 8px 24px rgba(99,102,241,0.18));
+    }
+
+    .brand-name {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 10px;
+      color: #1a1a2e;
+    }
+    .brand-name .gate {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-cn {
+      font-size: 16px;
+      color: #bbb;
+      letter-spacing: 8px;
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+
+    .slogan {
+      font-size: 17px;
+      color: #888;
+      letter-spacing: 0.5px;
+      line-height: 1.8;
+    }
+    .slogan span { color: #6366f1; font-weight: 500; }
+
+    /* ── Palette ── */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+    .color-chip { border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .color-swatch { height: 80px; }
+    .color-info {
+      padding: 12px;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,0.04);
+    }
+    .color-name { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 2px; }
+    .color-hex { font-size: 11px; color: #aaa; font-family: 'SF Mono', monospace; }
+
+    /* ── Logo Variants ── */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .logo-card {
+      border-radius: 20px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .logo-card.light-bg { background: #ffffff; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+    .logo-card.gray-bg { background: #f0f0f8; }
+    .logo-card.brand-bg { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+
+    .logo-inline { display: flex; align-items: center; gap: 12px; }
+    .logo-inline-en { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+    .logo-inline-cn { font-size: 11px; letter-spacing: 4px; margin-top: 3px; }
+    .logo-card-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* ── Icon Sizes ── */
+    .icon-sizes { display: flex; align-items: flex-end; gap: 36px; flex-wrap: wrap; }
+    .icon-size-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .icon-size-label { font-size: 11px; color: #aaa; font-family: 'SF Mono', monospace; }
+
+    /* ── UI Mockup ── */
+    .popup-mockup {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.08);
+      overflow: hidden;
+      width: 320px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+    }
+    .popup-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafafa;
+    }
+    .popup-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #1a1a2e; }
+    .popup-logo .gate { color: #6366f1; }
+    .popup-status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 8px rgba(52,211,153,0.5);
+    }
+    .popup-body { padding: 18px; background: #fff; }
+
+    .status-card {
+      background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(139,92,246,0.07));
+      border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .status-title { font-size: 11px; color: #6366f1; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+    .status-value { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+    .status-sub { font-size: 12px; color: #aaa; margin-top: 3px; }
+
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-item {
+      background: #f7f7fb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .stat-num { font-size: 22px; font-weight: 800; }
+    .stat-label { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+    .popup-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .popup-btn { padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; text-align: center; cursor: pointer; }
+    .popup-btn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+    .popup-btn.secondary { background: #f0f0f8; color: #666; border: 1px solid rgba(0,0,0,0.06); }
+
+    /* Block Page */
+    .block-mockup {
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    }
+    .block-icon {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      border: 1px solid rgba(99,102,241,0.15);
+    }
+    .block-title { font-size: 18px; font-weight: 800; color: #1a1a2e; margin-bottom: 8px; }
+    .block-domain {
+      font-size: 12px; color: #888;
+      background: #f5f5fa;
+      padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 16px;
+      font-family: 'SF Mono', monospace;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .block-message { font-size: 13px; color: #888; line-height: 1.8; margin-bottom: 24px; padding: 0 4px; }
+    .block-message em { color: #6366f1; font-style: normal; font-weight: 500; }
+    .block-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .block-btn-main { padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; font-size: 13px; font-weight: 700; color: #fff; }
+    .block-btn-sub { padding: 10px; background: #f5f5fa; border-radius: 10px; font-size: 12px; color: #888; border: 1px solid rgba(0,0,0,0.06); }
+
+    /* Taglines */
+    .tagline-list { display: flex; flex-direction: column; gap: 10px; }
+    .tagline-item {
+      padding: 18px 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .tagline-item.featured {
+      border-color: rgba(99,102,241,0.25);
+      background: linear-gradient(135deg, rgba(99,102,241,0.04), rgba(139,92,246,0.04));
+    }
+    .tagline-text { font-size: 15px; color: #555; }
+    .tagline-item.featured .tagline-text { color: #1a1a2e; font-weight: 600; }
+    .tagline-badge { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #6366f1; background: rgba(99,102,241,0.1); padding: 3px 10px; border-radius: 20px; white-space: nowrap; margin-left: 16px; }
+
+    /* Voice */
+    .voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .voice-card { padding: 24px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.06); background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .voice-card.good { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.03); }
+    .voice-card.bad { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.02); }
+    .voice-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; font-weight: 700; }
+    .voice-tag.good { color: #10b981; }
+    .voice-tag.bad { color: #ef4444; }
+    .voice-item { font-size: 13px; line-height: 1.8; color: #666; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+    .voice-item:last-child { border-bottom: none; }
+
+    /* Principles */
+    .principle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .principle-card { padding: 28px 24px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.06); background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .principle-icon { font-size: 28px; margin-bottom: 16px; }
+    .principle-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #1a1a2e; }
+    .principle-desc { font-size: 13px; color: #888; line-height: 1.7; }
+
+    /* Rule Groups Preview */
+    .rule-group-list { display: flex; flex-direction: column; gap: 10px; max-width: 480px; }
+    .rule-group-item {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid rgba(0,0,0,0.07);
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .rg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .rg-info { flex: 1; }
+    .rg-name { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 2px; }
+    .rg-meta { font-size: 12px; color: #aaa; }
+    .rg-toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      display: flex; align-items: center;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .rg-toggle.on { background: #6366f1; justify-content: flex-end; }
+    .rg-toggle.off { background: #e0e0e8; justify-content: flex-start; }
+    .rg-toggle-knob { width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+
+    .brand-footer {
+      padding: 48px;
+      text-align: center;
+      color: #ccc;
+      font-size: 12px;
+      letter-spacing: 3px;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="logo-mark">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#a78bfa"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#c4b5fd"/>
+          </linearGradient>
+        </defs>
+        <!-- 背景圆形 -->
+        <circle cx="50" cy="50" r="48" fill="white" stroke="rgba(99,102,241,0.15)" stroke-width="1.5"/>
+        <!-- 门框主体 -->
+        <rect x="22" y="20" width="56" height="64" rx="6" fill="rgba(99,102,241,0.06)" stroke="url(#g1)" stroke-width="2.5"/>
+        <!-- 拱顶 -->
+        <path d="M22 40 Q50 16 78 40" stroke="url(#g1)" stroke-width="2.5" fill="none"/>
+        <!-- 门缝线 -->
+        <line x1="50" y1="40" x2="50" y2="84" stroke="url(#g2)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <!-- 锁体 -->
+        <rect x="40" y="55" width="20" height="15" rx="4" fill="url(#g1)"/>
+        <!-- 锁环 -->
+        <path d="M44 55 v-6 a6 6 0 0 1 12 0 v6" stroke="url(#g1)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- 锁孔 -->
+        <circle cx="50" cy="62" r="2.5" fill="white"/>
+      </svg>
+    </div>
+
+    <div class="brand-name">
+      <span>Focus</span><span class="gate">Gate</span>
+    </div>
+    <div class="brand-cn">守 界</div>
+    <div class="slogan">
+      该专注时，<span>守住你的注意力边界</span>
+    </div>
+  </section>
+
+  <!-- ══ COLOR PALETTE ══ -->
+  <section class="section">
+    <div class="section-label">Color Palette · 品牌色彩</div>
+    <div class="palette-grid">
+      <div class="color-chip">
+        <div class="color-swatch" style="background: linear-gradient(135deg,#6366f1,#818cf8)"></div>
+        <div class="color-info"><div class="color-name">Gate Indigo</div><div class="color-hex">#6366F1</div></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background: linear-gradient(135deg,#8b5cf6,#a78bfa)"></div>
+        <div class="color-info"><div class="color-name">Focus Violet</div><div class="color-hex">#8B5CF6</div></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background: #ffffff; border: 1px solid #eee;"></div>
+        <div class="color-info"><div class="color-name">Pure White</div><div class="color-hex">#FFFFFF</div></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background: #f7f7fb;border:1px solid #eee;"></div>
+        <div class="color-info"><div class="color-name">Soft Ground</div><div class="color-hex">#F7F7FB</div></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background: linear-gradient(135deg,#34d399,#10b981)"></div>
+        <div class="color-info"><div class="color-name">Unlock Green</div><div class="color-hex">#34D399</div></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background: linear-gradient(135deg,#f59e0b,#fbbf24)"></div>
+        <div class="color-info"><div class="color-name">Remind Amber</div><div class="color-hex">#F59E0B</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LOGO VARIANTS ══ -->
+  <section class="section">
+    <div class="section-label">Logo Variants · 标志变体</div>
+    <div class="logo-grid">
+
+      <div class="logo-card light-bg">
+        <div class="logo-inline">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <defs><linearGradient id="gv1" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+            <circle cx="50" cy="50" r="48" fill="white" stroke="rgba(99,102,241,0.15)" stroke-width="1.5"/>
+            <rect x="22" y="20" width="56" height="64" rx="6" fill="rgba(99,102,241,0.06)" stroke="url(#gv1)" stroke-width="2.5"/>
+            <path d="M22 40 Q50 16 78 40" stroke="url(#gv1)" stroke-width="2.5" fill="none"/>
+            <line x1="50" y1="40" x2="50" y2="84" stroke="url(#gv1)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+            <rect x="40" y="55" width="20" height="15" rx="4" fill="url(#gv1)"/>
+            <path d="M44 55 v-6 a6 6 0 0 1 12 0 v6" stroke="url(#gv1)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="50" cy="62" r="2.5" fill="white"/>
+          </svg>
+          <div>
+            <div class="logo-inline-en" style="color:#1a1a2e">Focus<span style="color:#6366f1">Gate</span></div>
+            <div class="logo-inline-cn" style="color:#ccc">守 界</div>
+          </div>
+        </div>
+        <div class="logo-card-label" style="color:#ccc">White Background</div>
+      </div>
+
+      <div class="logo-card gray-bg">
+        <div class="logo-inline">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <defs><linearGradient id="gv2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+            <circle cx="50" cy="50" r="48" fill="white" stroke="rgba(99,102,241,0.12)" stroke-width="1.5"/>
+            <rect x="22" y="20" width="56" height="64" rx="6" fill="rgba(99,102,241,0.06)" stroke="url(#gv2)" stroke-width="2.5"/>
+            <path d="M22 40 Q50 16 78 40" stroke="url(#gv2)" stroke-width="2.5" fill="none"/>
+            <rect x="40" y="55" width="20" height="15" rx="4" fill="url(#gv2)"/>
+            <path d="M44 55 v-6 a6 6 0 0 1 12 0 v6" stroke="url(#gv2)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="50" cy="62" r="2.5" fill="white"/>
+          </svg>
+          <div>
+            <div class="logo-inline-en" style="color:#1a1a2e">Focus<span style="color:#6366f1">Gate</span></div>
+            <div class="logo-inline-cn" style="color:#bbb">守 界</div>
+          </div>
+        </div>
+        <div class="logo-card-label" style="color:#bbb">Gray Background</div>
+      </div>
+
+      <div class="logo-card brand-bg">
+        <div class="logo-inline">
+          <svg width="38" height="38" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+            <rect x="22" y="20" width="56" height="64" rx="6" fill="rgba(255,255,255,0.1)" stroke="white" stroke-width="2.5"/>
+            <path d="M22 40 Q50 16 78 40" stroke="white" stroke-width="2.5" fill="none"/>
+            <line x1="50" y1="40" x2="50" y2="84" stroke="white" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+            <rect x="40" y="55" width="20" height="15" rx="4" fill="white"/>
+            <path d="M44 55 v-6 a6 6 0 0 1 12 0 v6" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="50" cy="62" r="2.5" fill="#8b5cf6"/>
+          </svg>
+          <div>
+            <div class="logo-inline-en" style="color:#fff">Focus<span style="color:rgba(255,255,255,0.7)">Gate</span></div>
+            <div class="logo-inline-cn" style="color:rgba(255,255,255,0.4)">守 界</div>
+          </div>
+        </div>
+        <div class="logo-card-label" style="color:rgba(255,255,255,0.35)">Brand Background</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ICON SIZES ══ -->
+  <section class="section">
+    <div class="section-label">Icon Sizes · 图标尺寸</div>
+    <div class="icon-sizes">
+      <div class="icon-size-item">
+        <svg width="128" height="128" viewBox="0 0 100 100" fill="none">
+          <defs><linearGradient id="gs128" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+          <rect width="100" height="100" rx="24" fill="#f0f0fa"/>
+          <rect x="22" y="18" width="56" height="66" rx="7" fill="rgba(99,102,241,0.08)" stroke="url(#gs128)" stroke-width="2.5"/>
+          <path d="M22 38 Q50 14 78 38" stroke="url(#gs128)" stroke-width="2.5" fill="none"/>
+          <line x1="50" y1="38" x2="50" y2="84" stroke="url(#gs128)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+          <rect x="39" y="54" width="22" height="16" rx="5" fill="url(#gs128)"/>
+          <path d="M43 54 v-6 a7 7 0 0 1 14 0 v6" stroke="url(#gs128)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="50" cy="62" r="2.8" fill="white"/>
+        </svg>
+        <div class="icon-size-label">128×128</div>
+      </div>
+      <div class="icon-size-item">
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+          <defs><linearGradient id="gs64" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+          <rect width="100" height="100" rx="24" fill="#f0f0fa"/>
+          <rect x="22" y="18" width="56" height="66" rx="7" fill="rgba(99,102,241,0.08)" stroke="url(#gs64)" stroke-width="2.5"/>
+          <path d="M22 38 Q50 14 78 38" stroke="url(#gs64)" stroke-width="2.5" fill="none"/>
+          <rect x="39" y="54" width="22" height="16" rx="5" fill="url(#gs64)"/>
+          <path d="M43 54 v-6 a7 7 0 0 1 14 0 v6" stroke="url(#gs64)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="50" cy="62" r="2.8" fill="white"/>
+        </svg>
+        <div class="icon-size-label">64×64</div>
+      </div>
+      <div class="icon-size-item">
+        <svg width="48" height="48" viewBox="0 0 100 100" fill="none">
+          <defs><linearGradient id="gs48" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+          <rect width="100" height="100" rx="24" fill="#f0f0fa"/>
+          <rect x="22" y="18" width="56" height="66" rx="7" fill="rgba(99,102,241,0.08)" stroke="url(#gs48)" stroke-width="3"/>
+          <path d="M22 38 Q50 14 78 38" stroke="url(#gs48)" stroke-width="3" fill="none"/>
+          <rect x="39" y="54" width="22" height="16" rx="5" fill="url(#gs48)"/>
+          <path d="M43 54 v-6 a7 7 0 0 1 14 0 v6" stroke="url(#gs48)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="icon-size-label">48×48</div>
+      </div>
+      <div class="icon-size-item">
+        <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+          <defs><linearGradient id="gs32" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+          <rect width="100" height="100" rx="24" fill="#f0f0fa"/>
+          <rect x="20" y="16" width="60" height="68" rx="8" fill="rgba(99,102,241,0.1)" stroke="url(#gs32)" stroke-width="4"/>
+          <path d="M20 38 Q50 12 80 38" stroke="url(#gs32)" stroke-width="4" fill="none"/>
+          <rect x="37" y="53" width="26" height="18" rx="6" fill="url(#gs32)"/>
+          <path d="M42 53 v-7 a8 8 0 0 1 16 0 v7" stroke="url(#gs32)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="icon-size-label">32×32</div>
+      </div>
+      <div class="icon-size-item">
+        <svg width="16" height="16" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="24" fill="#6366f1"/>
+          <rect x="20" y="16" width="60" height="68" rx="8" stroke="white" stroke-width="6" fill="rgba(255,255,255,0.15)"/>
+          <path d="M20 40 Q50 12 80 40" stroke="white" stroke-width="6" fill="none"/>
+          <rect x="36" y="54" width="28" height="18" rx="6" fill="white"/>
+          <path d="M42 54 v-8 a8 8 0 0 1 16 0 v8" stroke="white" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="icon-size-label">16×16</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ UI MOCKUP ══ -->
+  <section class="section">
+    <div class="section-label">UI Preview · 界面预览</div>
+    <div style="display:flex; gap:32px; flex-wrap:wrap; align-items:flex-start;">
+
+      <div>
+        <div style="font-size:11px;color:#bbb;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Popup · 弹窗</div>
+        <div class="popup-mockup">
+          <div class="popup-header">
+            <div class="popup-logo">Focus<span class="gate">Gate</span></div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="popup-status-dot"></div>
+              <span style="font-size:11px;color:#aaa;">活跃中</span>
+            </div>
+          </div>
+          <div class="popup-body">
+            <div class="status-card">
+              <div class="status-title">🎯 工作时间专注</div>
+              <div class="status-value">还剩 1h 24m</div>
+              <div class="status-sub">结束时间 18:00 · 已阻断 3 个网站</div>
+            </div>
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-num" style="color:#6366f1">5</div>
+                <div class="stat-label">今日阻断</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num" style="color:#10b981">1</div>
+                <div class="stat-label">临时解锁</div>
+              </div>
+            </div>
+            <div class="popup-btn-row">
+              <div class="popup-btn primary">查看规则组</div>
+              <div class="popup-btn secondary">暂停 15 分钟</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px;color:#bbb;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Block Page · 阻断页</div>
+        <div class="block-mockup">
+          <div class="block-icon">
+            <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+              <defs><linearGradient id="gblock" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+              <rect x="22" y="20" width="56" height="64" rx="6" stroke="url(#gblock)" stroke-width="3" fill="none"/>
+              <path d="M22 40 Q50 16 78 40" stroke="url(#gblock)" stroke-width="3" fill="none"/>
+              <rect x="40" y="55" width="20" height="15" rx="4" fill="url(#gblock)"/>
+              <path d="M44 55 v-6 a6 6 0 0 1 12 0 v6" stroke="url(#gblock)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <circle cx="50" cy="62" r="2.5" fill="white"/>
+            </svg>
+          </div>
+          <div class="block-title">守界已启动</div>
+          <div class="block-domain">youtube.com</div>
+          <div class="block-message">
+            现在是 <em>工作专注时间</em>，<br>
+            这是你为自己设定的边界。<br><br>
+            <em>「专注 2 小时，比刷 8 小时更有价值。」</em>
+          </div>
+          <div class="block-btns">
+            <div class="block-btn-main">✓ 回到工作</div>
+            <div class="block-btn-sub">临时解锁 10 分钟</div>
+            <div class="block-btn-sub">修改规则</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px;color:#bbb;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Rule Groups · 规则组</div>
+        <div class="rule-group-list">
+          <div class="rule-group-item">
+            <div class="rg-dot" style="background:#6366f1;box-shadow:0 0 6px rgba(99,102,241,0.4)"></div>
+            <div class="rg-info">
+              <div class="rg-name">🎯 工作专注</div>
+              <div class="rg-meta">工作日 09:00–18:00 · 12 个网站</div>
+            </div>
+            <div class="rg-toggle on"><div class="rg-toggle-knob"></div></div>
+          </div>
+          <div class="rule-group-item">
+            <div class="rg-dot" style="background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.4)"></div>
+            <div class="rg-info">
+              <div class="rg-name">🌙 晚安边界</div>
+              <div class="rg-meta">每天 23:30–07:00 · 8 个网站</div>
+            </div>
+            <div class="rg-toggle on"><div class="rg-toggle-knob"></div></div>
+          </div>
+          <div class="rule-group-item">
+            <div class="rg-dot" style="background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.3)"></div>
+            <div class="rg-info">
+              <div class="rg-name">📚 备考冲刺</div>
+              <div class="rg-meta">全天 · 20 个网站</div>
+            </div>
+            <div class="rg-toggle off"><div class="rg-toggle-knob"></div></div>
+          </div>
+          <div class="rule-group-item" style="border-style:dashed;background:#fafafa;justify-content:center;">
+            <div style="font-size:13px;color:#bbb;font-weight:500;">＋ 新建规则组</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ TAGLINES ══ -->
+  <section class="section">
+    <div class="section-label">Taglines · 品牌文案</div>
+    <div class="tagline-list">
+      <div class="tagline-item featured">
+        <div class="tagline-text">该专注时，守住你的注意力边界。</div>
+        <div class="tagline-badge">主 Slogan</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">你设定规则，FocusGate 帮你守住它。</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">工作时专注，睡前放下，用规则守住每一段时间。</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">Block the noise. Own your time.</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">Your rules. Your focus. Your gate.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TONE OF VOICE ══ -->
+  <section class="section">
+    <div class="section-label">Tone of Voice · 品牌语气</div>
+    <div class="voice-grid">
+      <div class="voice-card good">
+        <div class="voice-tag good">✓ FocusGate 的语气</div>
+        <div class="voice-item">温和、支持性，像一个理性的朋友</div>
+        <div class="voice-item">「这是你为自己设定的边界」</div>
+        <div class="voice-item">「专注 2 小时，比刷 8 小时更有价值」</div>
+        <div class="voice-item">「你随时可以解锁，但先停一下」</div>
+        <div class="voice-item">鼓励自主选择，不道德绑架</div>
+      </div>
+      <div class="voice-card bad">
+        <div class="voice-tag bad">✗ 避免的语气</div>
+        <div class="voice-item">严厉、指责、说教</div>
+        <div class="voice-item">「你又在摸鱼了！」</div>
+        <div class="voice-item">「这样下去你会失败的」</div>
+        <div class="voice-item">「禁止访问」（冷冰冰的系统感）</div>
+        <div class="voice-item">制造焦虑或羞耻感</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DESIGN PRINCIPLES ══ -->
+  <section class="section">
+    <div class="section-label">Design Principles · 设计原则</div>
+    <div class="principle-grid">
+      <div class="principle-card">
+        <div class="principle-icon">🚪</div>
+        <div class="principle-title">门，不是墙</div>
+        <div class="principle-desc">FocusGate 是一扇门，不是一堵墙。用户永远有选择权，我们只是增加摩擦，而非强制阻断。</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-icon">🎯</div>
+        <div class="principle-title">清醒时的自己做决定</div>
+        <div class="principle-desc">规则由专注时的你设定，执行在分心时发生。产品是「过去的你」对「当下的你」的提醒。</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-icon">🔒</div>
+        <div class="principle-title">隐私优先，本地存储</div>
+        <div class="principle-desc">所有数据默认保存在本地。我们不需要知道你在看什么，只需要帮你守住边界。</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="brand-footer"> 
+    FOCUSGATE · 守界 &nbsp;·&nbsp; BRAND IDENTITY v1.0
+  </div>
+
+</body>
+</html>

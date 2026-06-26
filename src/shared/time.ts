@@ -1,4 +1,4 @@
-import type { ReminderDecision, RuleGroup, SleepSchedule } from "./types";
+import type { ReminderDecision, ReminderWindowState, RuleGroup, SleepSchedule } from "./types";
 
 export function parseClockTime(value: string): number {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
@@ -58,18 +58,32 @@ export function getSleepSessionId(schedule: SleepSchedule, date = new Date()): s
 }
 
 export function isReminderWindowActive(schedule: SleepSchedule, reminderMinutes: number, date = new Date()): boolean {
+  return getReminderWindowState(schedule, reminderMinutes, date).active;
+}
+
+export function getReminderWindowState(
+  schedule: SleepSchedule,
+  reminderMinutes: number,
+  date = new Date()
+): ReminderWindowState {
   if (!schedule.enabled || reminderMinutes <= 0) {
-    return false;
+    return { active: false };
   }
 
-  const reminderStart = shiftClockMinutes(schedule.startTime, -Math.max(0, reminderMinutes));
-  const reminderSchedule: SleepSchedule = {
-    ...schedule,
-    startTime: reminderStart,
-    endTime: schedule.startTime
-  };
+  const scheduleStart = getCurrentReminderScheduleStart(schedule, reminderMinutes, date);
+  if (!scheduleStart) {
+    return { active: false };
+  }
 
-  return isScheduleActive(reminderSchedule, date);
+  const startsAt = new Date(scheduleStart.getTime() - reminderMinutes * 60000);
+  const remainingMs = scheduleStart.getTime() - date.getTime();
+  return {
+    active: true,
+    startsAt: startsAt.toISOString(),
+    endsAt: scheduleStart.toISOString(),
+    remainingMs,
+    sessionId: getSleepSessionId(schedule, scheduleStart)
+  };
 }
 
 export function getNextReminderDate(group: RuleGroup, from = new Date()): Date | undefined {
@@ -123,6 +137,36 @@ export function getNextScheduleStartDate(group: RuleGroup, from = new Date()): D
   return candidates.sort((a, b) => a.getTime() - b.getTime())[0];
 }
 
+export function getCurrentReminderScheduleStart(
+  schedule: SleepSchedule,
+  reminderMinutes: number,
+  date = new Date()
+): Date | undefined {
+  if (!schedule.enabled || reminderMinutes <= 0) {
+    return undefined;
+  }
+
+  const startMinutes = parseClockTime(schedule.startTime);
+  const candidates: Date[] = [];
+
+  for (let offset = -1; offset <= 1; offset += 1) {
+    const day = new Date(date);
+    day.setDate(day.getDate() + offset);
+    if (!schedule.days.includes(day.getDay() as SleepSchedule["days"][number])) {
+      continue;
+    }
+
+    const startDate = new Date(day);
+    startDate.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
+    const reminderStart = new Date(startDate.getTime() - reminderMinutes * 60000);
+    if (date.getTime() >= reminderStart.getTime() && date.getTime() < startDate.getTime()) {
+      candidates.push(startDate);
+    }
+  }
+
+  return candidates.sort((a, b) => a.getTime() - b.getTime())[0];
+}
+
 export function evaluateReminder(
   group: RuleGroup,
   remindedSessionIds: string[],
@@ -132,11 +176,12 @@ export function evaluateReminder(
     return { shouldRemind: false, reason: "disabled" };
   }
 
-  if (!isReminderWindowActive(group.schedule, group.reminderMinutes, date)) {
+  const reminder = getReminderWindowState(group.schedule, group.reminderMinutes, date);
+  if (!reminder.active) {
     return { shouldRemind: false, reason: "outside_window" };
   }
 
-  const sessionId = getSleepSessionId(group.schedule, date);
+  const sessionId = reminder.sessionId ?? getSleepSessionId(group.schedule, date);
   const reminderKey = `${group.id}:${sessionId}`;
   if (remindedSessionIds.includes(reminderKey)) {
     return {
@@ -180,11 +225,4 @@ export function toLocalDateKey(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function shiftClockMinutes(value: string, deltaMinutes: number): string {
-  const shifted = (parseClockTime(value) + deltaMinutes + 1440) % 1440;
-  const hours = String(Math.floor(shifted / 60)).padStart(2, "0");
-  const minutes = String(shifted % 60).padStart(2, "0");
-  return `${hours}:${minutes}`;
 }

@@ -4,6 +4,7 @@ import {
   recordGuardEvent,
   updateAppSettings
 } from "../shared/storage";
+import { BRAND } from "../shared/brand";
 import { evaluateAccess } from "../shared/sites";
 import { evaluateReminder, getNextReminderDate, getNextScheduleStartDate } from "../shared/time";
 import type { AppSettings } from "../shared/types";
@@ -49,7 +50,7 @@ async function handleInstalled(): Promise<void> {
   await chrome.alarms.create(CLEANUP_UNLOCKS_ALARM, { periodInMinutes: 5 });
 
   if (!settings.onboardingCompleted) {
-    await chrome.tabs.create({ url: chrome.runtime.getURL("options.html?onboarding=1") });
+    await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
   }
 }
 
@@ -112,7 +113,7 @@ async function maybeNotifyReminder(ruleGroupId: string, settings: AppSettings): 
     type: "basic",
     iconUrl: chrome.runtime.getURL("icon-128.png"),
     title: `${decision.ruleGroupName}即将开启`,
-    message: `${decision.reminderMinutes} 分钟后进入限制时间。现在可以收尾，准备切换状态了。`
+    message: `${decision.reminderMinutes} 分钟后进入限制时间。${BRAND.nameZh} 会帮你守住这条边界。`
   });
   await markSessionReminded(decision.ruleGroupId, decision.sessionId);
   await recordGuardEvent({

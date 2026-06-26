@@ -2,7 +2,7 @@
   "name": "youshouldsleep",
   "private": true,
   "version": "0.1.0",
-  "description": "GoodNight Guard browser extension for bedtime website blocking.",
+  "description": "FocusGate browser extension for rule-group website boundaries.",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5179",
