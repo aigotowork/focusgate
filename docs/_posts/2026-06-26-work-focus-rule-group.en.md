@@ -6,6 +6,9 @@ date: 2026-06-26
 lang: en
 translation_key: work-focus-rule-group
 permalink: /blog/en/work-focus-rule-group/
+image: /assets/blog/work-focus-hero.svg
+topic: Work Focus
+reading_time: 6 min read
 ---
 
 ![A calm work desk illustration with a task list and a distracting feed held behind a soft boundary.]({{ "/assets/blog/work-focus-hero.svg" | relative_url }})
@@ -42,8 +45,6 @@ For the primary action, choose either closing the page or opening a task list / 
 
 ![A small illustration of a blocked distracting tab turning into a simple task checklist, showing the next action after a boundary.]({{ "/assets/blog/task-handoff-spot.svg" | relative_url }})
 
-![A work focus configuration flow: choose the work window, add high-risk sites, use reminders, and return to the next action.]({{ "/assets/blog/work-focus-flow.svg" | relative_url }})
-
 ## Reminders are often better than sudden blocks
 
 The most frustrating work block is the one that surprises you in the middle of a transition. A reminder window makes the boundary less abrupt.
@@ -51,6 +52,8 @@ The most frustrating work block is the one that surprises you in the middle of a
 If your rule begins at `14:00`, try a 10 or 15 minute reminder. When you casually open an entertainment site after lunch, the page can show a quiet notice before the full block starts. You have time to close the page, save anything useful, and return to the task.
 
 A reminder is not a weak boundary. It is a ramp. Many distractions only need a small interruption before they become an hour.
+
+![A work focus configuration flow: choose the work window, add high-risk sites, use reminders, and return to the next action.]({{ "/assets/blog/work-focus-flow.svg" | relative_url }})
 
 ## Common mistakes
 

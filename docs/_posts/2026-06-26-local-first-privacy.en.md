@@ -6,6 +6,9 @@ date: 2026-06-26
 lang: en
 translation_key: local-first-privacy
 permalink: /blog/en/local-first-privacy/
+image: /assets/blog/privacy-local-hero.svg
+topic: Privacy Design
+reading_time: 5 min read
 ---
 
 ![A calm privacy illustration with a browser, local device, and lock-shaped FocusGate boundary mark.]({{ "/assets/blog/privacy-local-hero.svg" | relative_url }})
@@ -38,13 +41,13 @@ For example, if you add `youtube.com` to a rule group, FocusGate needs to know t
 
 ![An abstract room diagram with a local rules cabinet, a clear boundary line, and page content staying outside.]({{ "/assets/blog/data-boundary-room.svg" | relative_url }})
 
-![A three-column data boundary diagram: stored rules and stats, excluded page content, and why domain matching is needed.]({{ "/assets/blog/privacy-data-boundary.svg" | relative_url }})
-
 ## Why URL and domain access are still needed
 
 A browser extension cannot block a website without knowing which website the browser is visiting. That is why FocusGate needs URL / domain information.
 
 When a page loads, the extension checks the current domain against your rule groups. Is the domain on the list? Is the schedule active? Is the rule group paused? Has this domain been temporarily unlocked for this group? If the decision says the site should be blocked, the browser opens the block page.
+
+![A three-column data boundary diagram: stored rules and stats, excluded page content, and why domain matching is needed.]({{ "/assets/blog/privacy-data-boundary.svg" | relative_url }})
 
 That decision does not require page body text. It is closer to checking an address label at the door than reading what is inside the room.
 

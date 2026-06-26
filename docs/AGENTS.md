@@ -18,6 +18,9 @@ This directory contains the static public pages used for Chrome Web Store homepa
 - Put article posts in `_posts/` and use Jekyll front matter with `layout: post`, `lang`, `description`, and a stable `permalink`.
 - Keep the default Chinese blog index at `/blog/`. Keep the English blog index at `/blog/en/`. French blog content is not yet maintained.
 - When publishing a planned bilingual article, create both `.zh.md` and `.en.md` posts with the same `translation_key`.
+- Every post needs card metadata in front matter: `image`, `topic`, and `reading_time`. The image must resolve under `assets/blog/` and work as a blog index card thumbnail.
 - Record planned article work in `blog/roadmap.md` before or while drafting posts. Each planned item should explain the target reader, user pain, article promise, image direction, and status.
 - Store blog illustrations or article-specific icons in `assets/blog/`. Prefer light, calm SVG illustrations or real extension screenshots. Keep imagery aligned with `DESIGN.md` and avoid high-stimulation visuals.
 - Blog posts are user-facing content. Chinese should be vivid, concrete, and empathetic; English should be clear, direct, and product-oriented.
+- Place images with editorial rhythm. Do not put two image blocks next to each other, and avoid using images as decoration unless the image directly clarifies the preceding or following paragraph.
+- Before publishing, review each article from top to bottom as a reader: every image should have a clear reason to appear at that exact point, and each section should contain enough prose between images for the article to breathe.

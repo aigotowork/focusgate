@@ -6,6 +6,9 @@ date: 2026-06-26
 lang: en
 translation_key: boundaries-over-willpower
 permalink: /blog/en/boundaries-over-willpower/
+image: /assets/blog/bedtime-boundary-hero.svg
+topic: Sleep Boundaries
+reading_time: 6 min read
 ---
 
 ![A calm bedtime desk illustration with a browser window, clock, and FocusGate boundary mark.]({{ "/assets/blog/bedtime-boundary-hero.svg" | relative_url }})
@@ -28,11 +31,11 @@ There is also a quieter emotional layer. Sometimes late-night browsing is not ab
 
 That is why the better question is not “How do I become stronger at midnight?” It is: “How do I avoid leaving the hardest decision until midnight?”
 
-![An abstract illustration with soft rings, browser cards, and a clock path showing the “one more click” loop at night.]({{ "/assets/blog/night-loop-abstract.svg" | relative_url }})
-
 ## A boundary should arrive before the argument starts
 
 FocusGate is built around that idea. It does not try to turn you into a different person. It helps the clear-headed version of you support the tired version of you.
+
+![An abstract illustration with soft rings, browser cards, and a clock path showing the “one more click” loop at night.]({{ "/assets/blog/night-loop-abstract.svg" | relative_url }})
 
 You can create a sleep rule group, keep the default “晚安守护” template, choose a start time, list the sites that most often pull you in, turn on a reminder window, and decide how temporary unlocks should work. When the scheduled time arrives, the browser no longer treats the visit as just another ordinary page load. It shows the boundary you already chose.
 

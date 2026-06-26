@@ -6,6 +6,9 @@ date: 2026-06-26
 lang: zh-CN
 translation_key: boundaries-over-willpower
 permalink: /blog/boundaries-over-willpower/
+image: /assets/blog/bedtime-boundary-hero.svg
+topic: 睡眠边界
+reading_time: 6 分钟
 ---
 
 ![一张浅色夜间桌面插画：浏览器窗口、时钟和守界标识组成一个安静的睡前边界。]({{ "/assets/blog/bedtime-boundary-hero.svg" | relative_url }})
@@ -28,11 +31,11 @@ permalink: /blog/boundaries-over-willpower/
 
 所以，问题不只是“我要不要更努力”。问题是：能不能不要把最难的决定，留到最疲惫的时刻。
 
-![一张抽象插图：柔和的圆环、浏览器小卡片和时钟路径，表现睡前“再看一下”的循环。]({{ "/assets/blog/night-loop-abstract.svg" | relative_url }})
-
 ## 边界应该提前出现
 
 FocusGate / 守界 的思路不是替你变成另一个人，而是帮清醒时的你照顾深夜的你。
+
+![一张抽象插图：柔和的圆环、浏览器小卡片和时钟路径，表现睡前“再看一下”的循环。]({{ "/assets/blog/night-loop-abstract.svg" | relative_url }})
 
 你可以在白天设置一个“晚安守护”规则组：几点开始、限制哪些网站、提前多久提醒、如果真的需要临时解锁，要多长时间、要不要写下原因。到了时间点，浏览器不再假装这一切只是普通访问，而是把你之前设下的边界摆出来。
 

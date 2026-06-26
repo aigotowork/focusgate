@@ -67,6 +67,26 @@ function jekyllPermalinks(): Set<string> {
   );
 }
 
+function frontMatterFor(relativePath: string): Record<string, string> {
+  const markdown = readDocsFile(relativePath);
+  const frontMatter = markdown.match(/^---\n([\s\S]*?)\n---/)?.[1];
+
+  expect(frontMatter, relativePath).toBeTruthy();
+
+  return Object.fromEntries(
+    [...frontMatter!.matchAll(/^([a-z_]+):\s*(.*)$/gm)].map((match) => [
+      match[1],
+      match[2].replace(/^"|"$/g, "")
+    ])
+  );
+}
+
+function imageLinesFor(relativePath: string): number[] {
+  return readDocsFile(relativePath)
+    .split("\n")
+    .flatMap((line, index) => (line.startsWith("![") ? [index + 1] : []));
+}
+
 describe("public docs localization", () => {
   it("keeps every route available in Chinese, English, and French", () => {
     for (const route of localizedRoutes) {
@@ -137,6 +157,33 @@ describe("public docs localization", () => {
 
           expect(existsSync(target), `${relativePath} -> ${reference}`).toBe(true);
         }
+      }
+    }
+  });
+
+  it("keeps blog posts ready for card indexes and readable image rhythm", () => {
+    for (const relativePath of markdownFilesIn("_posts")) {
+      const frontMatter = frontMatterFor(relativePath);
+
+      for (const key of ["image", "topic", "reading_time"]) {
+        expect(frontMatter[key], `${relativePath} missing ${key}`).toBeTruthy();
+      }
+
+      expect(frontMatter.image, `${relativePath} image path`).toMatch(/^\/assets\/blog\/.+\.svg$/);
+      expect(existsSync(join(docsRoot, frontMatter.image.replace(/^\//, ""))), `${relativePath} image`).toBe(true);
+
+      const imageLines = imageLinesFor(relativePath);
+
+      expect(imageLines.length, `${relativePath} should use multiple article images`).toBeGreaterThanOrEqual(3);
+
+      for (const [index, lineNumber] of imageLines.entries()) {
+        const nextLineNumber = imageLines[index + 1];
+
+        if (!nextLineNumber) {
+          continue;
+        }
+
+        expect(nextLineNumber - lineNumber, `${relativePath} has adjacent images near line ${lineNumber}`).toBeGreaterThan(2);
       }
     }
   });
