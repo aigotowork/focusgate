@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">Domain address check spot illustration</title>
+  <desc id="desc">A doorway address label and a checklist showing domain matching without reading page contents.</desc>
+  <rect width="1000" height="520" rx="36" fill="#fbfbff"/>
+  <rect x="150" y="115" width="320" height="310" rx="32" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <rect x="220" y="180" width="180" height="52" rx="16" fill="#eef2ff" stroke="#c7d2fe" stroke-width="4"/>
+  <rect x="248" y="199" width="124" height="14" rx="7" fill="#4f46e5"/>
+  <path d="M312 232v124" stroke="#cbd5e1" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="350" cy="300" r="10" fill="#94a3b8"/>
+  <rect x="570" y="130" width="280" height="280" rx="30" fill="#ecfdf5" stroke="#bbf7d0" stroke-width="4"/>
+  <rect x="622" y="188" width="145" height="20" rx="10" fill="#86efac"/>
+  <path d="M625 260l18 18 38-50M625 326l18 18 38-50" fill="none" stroke="#059669" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="704" y="249" width="92" height="16" rx="8" fill="#bbf7d0"/>
+  <rect x="704" y="315" width="110" height="16" rx="8" fill="#bbf7d0"/>
+  <path d="M500 265h42" stroke="#c7d2fe" stroke-width="14" stroke-linecap="round"/>
+  <path d="M520 238l30 27-30 27" fill="none" stroke="#c7d2fe" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 const docsRoot = resolve(process.cwd(), "docs");
@@ -34,6 +34,37 @@ function readDocsFile(relativePath: string): string {
 
 function attributeValues(html: string, name: string): string[] {
   return [...html.matchAll(new RegExp(`${name}="([^"]+)"`, "g"))].map((match) => match[1]);
+}
+
+function markdownFilesIn(relativeDir: string): string[] {
+  const absoluteDir = join(docsRoot, relativeDir);
+
+  if (!existsSync(absoluteDir)) {
+    return [];
+  }
+
+  return readdirSync(absoluteDir, { withFileTypes: true }).flatMap((entry) => {
+    const relativePath = join(relativeDir, entry.name);
+
+    if (entry.isDirectory()) {
+      return markdownFilesIn(relativePath);
+    }
+
+    return entry.isFile() && entry.name.endsWith(".md") ? [relativePath] : [];
+  });
+}
+
+function jekyllPermalinks(): Set<string> {
+  const markdownFiles = [...markdownFilesIn("blog"), ...markdownFilesIn("_posts")];
+
+  return new Set(
+    markdownFiles
+      .map((relativePath) => {
+        const markdown = readDocsFile(relativePath);
+        return markdown.match(/^permalink:\s*"?([^"\n]+)"?/m)?.[1];
+      })
+      .filter((permalink): permalink is string => Boolean(permalink))
+  );
 }
 
 describe("public docs localization", () => {
@@ -77,6 +108,8 @@ describe("public docs localization", () => {
   });
 
   it("keeps local asset and route links resolvable", () => {
+    const permalinks = jekyllPermalinks();
+
     for (const route of localizedRoutes) {
       for (const relativePath of [route.zh, route.en, route.fr]) {
         const html = readDocsFile(relativePath);
@@ -91,7 +124,14 @@ describe("public docs localization", () => {
           const target = resolve(sourceDir, reference);
 
           if (reference.endsWith("/")) {
-            expect(existsSync(join(target, "index.html")), `${relativePath} -> ${reference}`).toBe(true);
+            const routePath = `/${reference.replace(/^\.\.\//g, "").replace(/^\.\//, "")}`;
+
+            expect(
+              existsSync(join(target, "index.html")) ||
+                existsSync(join(target, "index.md")) ||
+                permalinks.has(routePath),
+              `${relativePath} -> ${reference}`
+            ).toBe(true);
             continue;
           }
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Abstract data boundary room</title>
+  <desc id="desc">An abstract room diagram showing a local cabinet, a clear boundary line, and page content staying outside.</desc>
+  <rect width="1200" height="620" fill="#fbfbff"/>
+  <rect x="150" y="110" width="900" height="400" rx="38" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <path d="M600 130v360" stroke="#c7d2fe" stroke-width="12" stroke-linecap="round"/>
+  <rect x="245" y="210" width="230" height="190" rx="30" fill="#ecfdf5" stroke="#bbf7d0" stroke-width="4"/>
+  <rect x="285" y="258" width="150" height="22" rx="11" fill="#86efac"/>
+  <rect x="285" y="314" width="108" height="18" rx="9" fill="#bbf7d0"/>
+  <rect x="285" y="354" width="132" height="18" rx="9" fill="#bbf7d0"/>
+  <path d="M330 203v-35c0-30 20-51 54-51s54 21 54 51v35" fill="none" stroke="#059669" stroke-width="12" stroke-linecap="round"/>
+  <g fill="#fff1f2" stroke="#fecdd3" stroke-width="4">
+    <rect x="730" y="185" width="250" height="66" rx="20"/>
+    <rect x="730" y="277" width="250" height="66" rx="20"/>
+    <rect x="730" y="369" width="250" height="66" rx="20"/>
+  </g>
+  <path d="M758 218h134M758 310h134M758 402h134" stroke="#fda4af" stroke-width="12" stroke-linecap="round"/>
+  <path d="M640 210c40 24 40 56 0 80M640 330c40 24 40 56 0 80" fill="none" stroke="#e11d48" stroke-width="10" stroke-linecap="round"/>
+  <path d="M657 200l-28 14 28 14M657 320l-28 14 28 14" fill="none" stroke="#e11d48" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="505" y="238" width="74" height="74" rx="20" fill="#eef2ff"/>
+  <path d="M525 276h34M542 259v34" stroke="#4f46e5" stroke-width="8" stroke-linecap="round"/>
+</svg>

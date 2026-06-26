@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Data boundary diagram</title>
+  <desc id="desc">A calm three-column diagram showing stored settings, excluded page content, and domain matching.</desc>
+  <rect width="1200" height="560" fill="#fbfbff"/>
+  <g fill="#ffffff" stroke="#dbe3ef" stroke-width="4">
+    <rect x="80" y="120" width="300" height="320" rx="30"/>
+    <rect x="450" y="120" width="300" height="320" rx="30"/>
+    <rect x="820" y="120" width="300" height="320" rx="30"/>
+  </g>
+  <circle cx="230" cy="215" r="58" fill="#ecfdf5"/>
+  <circle cx="600" cy="215" r="58" fill="#fff1f2"/>
+  <circle cx="970" cy="215" r="58" fill="#eef2ff"/>
+  <path d="M207 216l19 19 42-55" fill="none" stroke="#059669" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M572 187l56 56M628 187l-56 56" stroke="#e11d48" stroke-width="10" stroke-linecap="round"/>
+  <path d="M935 218h70M970 183v70" stroke="#4f46e5" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#64748b">
+    <rect x="145" y="315" width="170" height="14" rx="7"/>
+    <rect x="145" y="355" width="130" height="14" rx="7"/>
+    <rect x="515" y="315" width="170" height="14" rx="7"/>
+    <rect x="515" y="355" width="130" height="14" rx="7"/>
+    <rect x="885" y="315" width="170" height="14" rx="7"/>
+    <rect x="885" y="355" width="130" height="14" rx="7"/>
+  </g>
+</svg>

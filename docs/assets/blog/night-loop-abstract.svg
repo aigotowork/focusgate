@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Abstract late-night loop</title>
+  <desc id="desc">Soft abstract rings, small browser cards, and a clock path showing the feeling of one more click at night.</desc>
+  <rect width="1200" height="620" fill="#fbfbff"/>
+  <path d="M285 330c0-128 104-232 232-232s232 104 232 232-104 232-232 232c-86 0-161-47-201-117" fill="none" stroke="#c7d2fe" stroke-width="28" stroke-linecap="round"/>
+  <path d="M719 205l33 113 103-57" fill="none" stroke="#c7d2fe" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="517" cy="330" r="120" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <circle cx="517" cy="330" r="78" fill="#eef2ff"/>
+  <path d="M517 287v48l38 25" fill="none" stroke="#4f46e5" stroke-width="12" stroke-linecap="round"/>
+  <g fill="#ffffff" stroke="#dbe3ef" stroke-width="4">
+    <rect x="165" y="145" width="190" height="118" rx="24"/>
+    <rect x="805" y="145" width="190" height="118" rx="24"/>
+    <rect x="160" y="405" width="210" height="126" rx="24"/>
+    <rect x="790" y="410" width="220" height="126" rx="24"/>
+  </g>
+  <g fill="#e2e8f0">
+    <rect x="205" y="190" width="96" height="14" rx="7"/>
+    <rect x="845" y="190" width="96" height="14" rx="7"/>
+    <rect x="205" y="454" width="118" height="14" rx="7"/>
+    <rect x="835" y="456" width="120" height="14" rx="7"/>
+  </g>
+  <circle cx="260" cy="226" r="13" fill="#fda4af"/>
+  <circle cx="900" cy="226" r="13" fill="#fbbf24"/>
+  <circle cx="265" cy="491" r="13" fill="#86efac"/>
+  <circle cx="900" cy="493" r="13" fill="#c7d2fe"/>
+  <path d="M865 318c43 18 79 49 103 88" fill="none" stroke="#bbf7d0" stroke-width="18" stroke-linecap="round"/>
+  <path d="M250 318c-37 22-66 55-84 94" fill="none" stroke="#fed7aa" stroke-width="18" stroke-linecap="round"/>
+</svg>

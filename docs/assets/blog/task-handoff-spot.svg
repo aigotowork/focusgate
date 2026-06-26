@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">Task handoff spot illustration</title>
+  <desc id="desc">A blocked distracting tab turning into a simple task checklist, representing the next action after a boundary.</desc>
+  <rect width="1000" height="520" rx="36" fill="#fbfbff"/>
+  <rect x="165" y="145" width="275" height="230" rx="28" fill="#fff1f2" stroke="#fecdd3" stroke-width="4"/>
+  <path d="M245 224h116M245 274h78" stroke="#fda4af" stroke-width="16" stroke-linecap="round"/>
+  <path d="M258 324l88-88M346 324l-88-88" stroke="#e11d48" stroke-width="12" stroke-linecap="round"/>
+  <path d="M470 260h90" stroke="#c7d2fe" stroke-width="16" stroke-linecap="round"/>
+  <path d="M530 226l38 34-38 34" fill="none" stroke="#c7d2fe" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="590" y="120" width="285" height="280" rx="30" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <rect x="640" y="176" width="130" height="22" rx="11" fill="#c7d2fe"/>
+  <path d="M646 248l18 18 38-50M646 314l18 18 38-50" fill="none" stroke="#059669" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="725" y="237" width="95" height="16" rx="8" fill="#e2e8f0"/>
+  <rect x="725" y="303" width="110" height="16" rx="8" fill="#e2e8f0"/>
+  <circle cx="740" cy="382" r="16" fill="#cbd5e1"/>
+</svg>

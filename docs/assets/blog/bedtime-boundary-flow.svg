@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Bedtime boundary flow</title>
+  <desc id="desc">A four-step visual flow for reminder, block, calm choice, and sleep wind-down.</desc>
+  <rect width="1200" height="520" fill="#fbfbff"/>
+  <g fill="#ffffff" stroke="#dbe3ef" stroke-width="4">
+    <rect x="90" y="150" width="210" height="220" rx="28"/>
+    <rect x="360" y="150" width="210" height="220" rx="28"/>
+    <rect x="630" y="150" width="210" height="220" rx="28"/>
+    <rect x="900" y="150" width="210" height="220" rx="28"/>
+  </g>
+  <g fill="none" stroke="#c7d2fe" stroke-width="8" stroke-linecap="round">
+    <path d="M315 260h30"/>
+    <path d="M585 260h30"/>
+    <path d="M855 260h30"/>
+  </g>
+  <g fill="#eef2ff">
+    <circle cx="195" cy="235" r="52"/>
+    <circle cx="465" cy="235" r="52"/>
+    <circle cx="735" cy="235" r="52"/>
+    <circle cx="1005" cy="235" r="52"/>
+  </g>
+  <path d="M195 204v36l27 18" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round"/>
+  <path d="M430 252v-32c0-25 16-43 42-43s42 18 42 43v32" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round"/>
+  <rect x="429" y="246" width="72" height="58" rx="16" fill="#4f46e5"/>
+  <path d="M704 231h62M704 262h44" stroke="#4f46e5" stroke-width="12" stroke-linecap="round"/>
+  <path d="M973 244c34 8 63-17 61-50 24 17 37 44 30 74-10 43-54 70-96 59-30-8-52-31-61-59 19 12 43 15 66-24z" fill="#4f46e5"/>
+  <g fill="#64748b">
+    <rect x="135" y="312" width="120" height="14" rx="7"/>
+    <rect x="390" y="312" width="150" height="14" rx="7"/>
+    <rect x="675" y="312" width="120" height="14" rx="7"/>
+    <rect x="940" y="312" width="130" height="14" rx="7"/>
+  </g>
+</svg>

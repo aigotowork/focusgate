@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">Permission prompt hesitation spot illustration</title>
+  <desc id="desc">A browser permission prompt with a question mark and a calm lock mark, showing a user's natural privacy hesitation.</desc>
+  <rect width="1000" height="520" rx="36" fill="#fbfbff"/>
+  <rect x="220" y="105" width="560" height="320" rx="34" fill="#ffffff" stroke="#dbe3ef" stroke-width="4"/>
+  <rect x="270" y="165" width="250" height="24" rx="12" fill="#c7d2fe"/>
+  <rect x="270" y="225" width="360" height="18" rx="9" fill="#e2e8f0"/>
+  <rect x="270" y="274" width="310" height="18" rx="9" fill="#e2e8f0"/>
+  <rect x="270" y="344" width="150" height="48" rx="16" fill="#4f46e5"/>
+  <rect x="445" y="344" width="150" height="48" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="4"/>
+  <circle cx="710" cy="210" r="58" fill="#eef2ff"/>
+  <path d="M695 196c3-24 45-22 45 4 0 26-30 24-30 50" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="710" cy="276" r="7" fill="#4f46e5"/>
+  <path d="M690 356v-23c0-18 12-31 31-31s31 13 31 31v23" fill="none" stroke="#059669" stroke-width="9" stroke-linecap="round"/>
+  <rect x="682" y="352" width="70" height="54" rx="15" fill="#059669"/>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Abstract focus path</title>
+  <desc id="desc">A calm path through work blocks with distracting islands kept outside the focus route.</desc>
+  <rect width="1200" height="620" fill="#fbfbff"/>
+  <path d="M140 430c130-190 255-250 385-166 95 62 170 61 232-4 72-75 159-88 303-22" fill="none" stroke="#c7d2fe" stroke-width="34" stroke-linecap="round"/>
+  <path d="M140 430c130-190 255-250 385-166 95 62 170 61 232-4 72-75 159-88 303-22" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 34"/>
+  <g fill="#ffffff" stroke="#dbe3ef" stroke-width="4">
+    <rect x="170" y="132" width="210" height="132" rx="28"/>
+    <rect x="485" y="378" width="230" height="138" rx="28"/>
+    <rect x="830" y="105" width="225" height="140" rx="28"/>
+  </g>
+  <rect x="216" y="178" width="118" height="16" rx="8" fill="#e2e8f0"/>
+  <rect x="532" y="424" width="130" height="16" rx="8" fill="#e2e8f0"/>
+  <rect x="878" y="154" width="128" height="16" rx="8" fill="#e2e8f0"/>
+  <g fill="#fff1f2" stroke="#fecdd3" stroke-width="4">
+    <circle cx="340" cy="420" r="64"/>
+    <circle cx="770" cy="390" r="60"/>
+    <circle cx="940" cy="405" r="70"/>
+  </g>
+  <path d="M312 420h56M340 392v56" stroke="#e11d48" stroke-width="9" stroke-linecap="round"/>
+  <path d="M742 390h56M770 362v56" stroke="#e11d48" stroke-width="9" stroke-linecap="round"/>
+  <path d="M907 405h66M940 372v66" stroke="#e11d48" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="140" cy="430" r="24" fill="#059669"/>
+  <path d="M1036 238l24 24 44-62" fill="none" stroke="#059669" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

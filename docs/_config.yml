@@ -1,0 +1,12 @@
+title: FocusGate / 守界
+description: 本地优先的浏览器扩展，用规则组为睡眠、工作和数字戒断建立网站边界。
+url: "https://aigotowork.github.io"
+baseurl: "/focusgate"
+theme: minima
+show_excerpts: true
+header_pages:
+  - blog/index.md
+  - blog/en/index.md
+  - blog/roadmap.md
+exclude:
+  - AGENTS.md

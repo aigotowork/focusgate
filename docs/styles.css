@@ -90,6 +90,10 @@ a {
   flex-wrap: wrap;
 }
 
+.topbar-actions .nav {
+  justify-content: flex-end;
+}
+
 .language-switcher {
   display: inline-flex;
   align-items: center;
@@ -344,6 +348,10 @@ h1 {
   }
 
   .topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .topbar-actions .nav {
     justify-content: flex-start;
   }
 
