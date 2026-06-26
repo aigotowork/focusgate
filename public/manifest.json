@@ -1,14 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "守界 - FocusGate",
-  "short_name": "守界",
+  "name": "__MSG_extensionName__",
+  "short_name": "__MSG_extensionShortName__",
   "version": "0.1.0",
-  "description": "用规则组为睡眠、工作和戒断场景建立可执行的网站边界。",
+  "default_locale": "zh_CN",
+  "description": "__MSG_extensionDescription__",
   "permissions": ["activeTab", "alarms", "notifications", "storage", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "守界"
+    "default_title": "__MSG_actionDefaultTitle__"
   },
   "icons": {
     "16": "icon-16.png",

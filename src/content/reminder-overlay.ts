@@ -1,7 +1,8 @@
-import { BRAND, gateMarkSvg } from "../shared/brand";
+import { gateMarkSvg } from "../shared/brand";
+import { formatDuration, getCatalog, getLocaleFromSettings } from "../shared/i18n";
 import { evaluatePageReminder } from "../shared/sites";
 import { getAppSettings } from "../shared/storage";
-import type { PageReminderDecision } from "../shared/types";
+import type { AppSettings, PageReminderDecision } from "../shared/types";
 
 const HOST_ID = "goodnight-guard-reminder-root";
 const DISMISSED_KEY_PREFIX = "goodnightGuard.dismissedReminder";
@@ -37,10 +38,12 @@ async function refreshReminderOverlay(): Promise<void> {
     return;
   }
 
-  renderOverlay(decision);
+  renderOverlay(decision, settings);
 }
 
-function renderOverlay(decision: PageReminderDecision): void {
+function renderOverlay(decision: PageReminderDecision, settings: AppSettings): void {
+  const locale = getLocaleFromSettings(settings);
+  const t = getCatalog(locale);
   const root = ensureShadowRoot();
   root.textContent = "";
 
@@ -62,7 +65,7 @@ function renderOverlay(decision: PageReminderDecision): void {
 
   const brand = document.createElement("span");
   brand.className = "brand";
-  brand.textContent = BRAND.nameZh;
+  brand.textContent = t.brand.name;
 
   const spacer = document.createElement("span");
   spacer.className = "spacer";
@@ -70,7 +73,7 @@ function renderOverlay(decision: PageReminderDecision): void {
   const closeButton = document.createElement("button");
   closeButton.className = "close";
   closeButton.type = "button";
-  closeButton.setAttribute("aria-label", "收起提醒");
+  closeButton.setAttribute("aria-label", t.reminder.closeAria);
   closeButton.textContent = "×";
   closeButton.addEventListener("click", () => {
     dismiss(decision);
@@ -92,17 +95,17 @@ function renderOverlay(decision: PageReminderDecision): void {
 
   const eyebrow = document.createElement("p");
   eyebrow.className = "eyebrow";
-  eyebrow.textContent = decision.ruleGroupName ? `${decision.ruleGroupName}即将开启` : "限制规则即将开启";
+  eyebrow.textContent = t.reminder.startsSoon(decision.ruleGroupName);
 
   const title = document.createElement("p");
   title.className = "title";
-  title.textContent = `${formatRemaining(decision.remainingMs)}后进入限制时间`;
+  title.textContent = t.reminder.entersAfter(formatDuration(decision.remainingMs ?? 0, locale));
 
   titleWrap.append(eyebrow, title);
 
   const message = document.createElement("p");
   message.className = "message";
-  message.textContent = `这个页面很快会被“${decision.ruleGroupName ?? "当前规则组"}”拦下。现在适合收尾、保存进度，然后切换到下一步。`;
+  message.textContent = t.reminder.message(decision.ruleGroupName);
 
   const progress = document.createElement("div");
   progress.className = "progress";
@@ -111,17 +114,17 @@ function renderOverlay(decision: PageReminderDecision): void {
   progressMeta.className = "progressMeta";
 
   const progressLabel = document.createElement("span");
-  progressLabel.textContent = "剩余时间";
+  progressLabel.textContent = t.reminder.progressLabel;
 
   const progressValue = document.createElement("span");
-  progressValue.textContent = `还剩 ${formatRemaining(decision.remainingMs)}`;
+  progressValue.textContent = t.reminder.remaining(formatDuration(decision.remainingMs ?? 0, locale));
 
   progressMeta.append(progressLabel, progressValue);
 
   const progressTrack = document.createElement("div");
   progressTrack.className = "progressTrack";
   progressTrack.setAttribute("role", "progressbar");
-  progressTrack.setAttribute("aria-label", "距离限制时间的剩余时间");
+  progressTrack.setAttribute("aria-label", t.reminder.progressAria);
   progressTrack.setAttribute("aria-valuemin", "0");
   progressTrack.setAttribute("aria-valuemax", "100");
 
@@ -137,7 +140,7 @@ function renderOverlay(decision: PageReminderDecision): void {
 
   const commitment = document.createElement("blockquote");
   commitment.className = "commitment";
-  commitment.textContent = decision.commitment?.trim() || "明天早上的我，会感谢现在停下来的我。";
+  commitment.textContent = decision.commitment?.trim() || t.reminder.fallbackCommitment;
 
   body.append(statusIcon, titleWrap, message, progress, commitment);
 
@@ -151,7 +154,7 @@ function renderOverlay(decision: PageReminderDecision): void {
   const dismissButton = document.createElement("button");
   dismissButton.className = "dismiss";
   dismissButton.type = "button";
-  dismissButton.textContent = "我知道了";
+  dismissButton.textContent = t.reminder.dismiss;
   dismissButton.addEventListener("click", () => {
     dismiss(decision);
     removeOverlay();
@@ -209,17 +212,6 @@ function getDismissKey(decision: PageReminderDecision): string | undefined {
     return undefined;
   }
   return `${DISMISSED_KEY_PREFIX}:${decision.ruleGroupId}:${decision.sessionId}:${decision.host}`;
-}
-
-function formatRemaining(value: number | undefined): string {
-  const totalMinutes = Math.max(1, Math.ceil((value ?? 0) / 60000));
-  if (totalMinutes < 60) {
-    return `${totalMinutes} 分钟`;
-  }
-
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return minutes === 0 ? `${hours} 小时` : `${hours} 小时 ${minutes} 分钟`;
 }
 
 function getReminderRemainingPercent(decision: PageReminderDecision): number {

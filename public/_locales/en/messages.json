@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "FocusGate",
+    "description": "Extension name shown by Chrome."
+  },
+  "extensionShortName": {
+    "message": "FocusGate",
+    "description": "Short extension name shown by Chrome."
+  },
+  "extensionDescription": {
+    "message": "Use rule groups to create enforceable website boundaries for sleep, focus, and digital reset time.",
+    "description": "Extension description shown by Chrome."
+  },
+  "actionDefaultTitle": {
+    "message": "FocusGate",
+    "description": "Toolbar action title."
+  }
+}

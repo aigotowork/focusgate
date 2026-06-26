@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "守界 - FocusGate",
+    "description": "Extension name shown by Chrome."
+  },
+  "extensionShortName": {
+    "message": "守界",
+    "description": "Short extension name shown by Chrome."
+  },
+  "extensionDescription": {
+    "message": "用规则组为睡眠、工作和戒断场景建立可执行的网站边界。",
+    "description": "Extension description shown by Chrome."
+  },
+  "actionDefaultTitle": {
+    "message": "守界",
+    "description": "Toolbar action title."
+  }
+}

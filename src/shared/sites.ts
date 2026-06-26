@@ -9,7 +9,6 @@ import type {
   SiteRule,
   UnlockDecision
 } from "./types";
-import { BRAND } from "./brand";
 import { getReminderWindowState, getSleepSessionId, isScheduleActive } from "./time";
 
 export function extractHostnameFromUrl(value: string): string | undefined {
@@ -225,10 +224,11 @@ export function getPopupPageContext(settings: AppSettings, url: string | undefin
   const listedInSelectedGroup =
     Boolean(host && selectedGroup?.sites.some((rule) => matchesSiteRule(host, rule)));
   const base = {
-    host: host ?? "当前页面",
+    host: host ?? "",
     matchedRuleGroupId,
     matchedRuleGroupName,
     selectedRuleGroupId: selectedGroup?.id,
+    selectedRuleGroupName: selectedGroup?.name,
     canAddToSelectedGroup: Boolean(host && selectedGroup && !listedInSelectedGroup),
     activeRuleGroupCount: activeGroups.length,
     upcomingRuleGroupCount: upcomingGroups.length
@@ -237,71 +237,55 @@ export function getPopupPageContext(settings: AppSettings, url: string | undefin
   if (!url || !host || decision?.reason === "not_http" || decision?.reason === "extension_page") {
     return {
       ...base,
-      status: "not_http",
-      statusLabel: "当前页面不可加入",
-      statusDetail: "请切换到普通网页后再管理规则组。"
+      status: "not_http"
     };
   }
 
   if (decision?.reason === "paused") {
     return {
       ...base,
-      status: "paused",
-      statusLabel: `${BRAND.nameZh}已暂停`,
-      statusDetail: "暂停结束后，命中的规则组会继续生效。"
+      status: "paused"
     };
   }
 
   if (decision?.allowed === false) {
     return {
       ...base,
-      status: "blocked",
-      statusLabel: "当前页面会被阻断",
-      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 正在保护这个网站。` : "有规则正在保护这个网站。"
+      status: "blocked"
     };
   }
 
   if (decision?.reason === "unlocked") {
     return {
       ...base,
-      status: "unlocked",
-      statusLabel: "当前页面已临时解锁",
-      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 的临时解锁仍在有效期内。` : "临时解锁仍在有效期内。"
+      status: "unlocked"
     };
   }
 
   if (reminder?.shouldShow) {
     return {
       ...base,
-      status: "upcoming",
-      statusLabel: "当前页面即将受限",
-      statusDetail: matchedRuleGroupName ? `${matchedRuleGroupName} 即将开始，请准备收尾。` : "限制规则即将开始，请准备收尾。"
+      status: "upcoming"
     };
   }
 
   if (decision?.reason === "outside_schedule") {
     return {
       ...base,
-      status: "outside_schedule",
-      statusLabel: "当前页面在规则时间外",
-      statusDetail: "这个网站已加入规则组，但现在不是限制时段。"
+      status: "outside_schedule"
     };
   }
 
   if (decision?.reason === "disabled") {
     return {
       ...base,
-      status: "inactive",
-      statusLabel: "没有启用的限制规则",
-      statusDetail: `启用规则组后，${BRAND.nameZh}会按时间自动执行。`
+      status: "inactive"
     };
   }
 
   return {
     ...base,
-    status: "not_listed",
-    statusLabel: "当前页面未加入规则",
-    statusDetail: selectedGroup ? `可以把它加入 ${selectedGroup.name}。` : "请先创建一个规则组。"
+    status: "not_listed"
   };
 }
 

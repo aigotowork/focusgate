@@ -10,6 +10,7 @@ import {
 } from "../shared/block-page";
 import { BRAND } from "../shared/brand";
 import { BrandMark, BrandWordmark } from "../shared/brand-ui";
+import { formatTime, getCatalog, getLocaleFromSettings } from "../shared/i18n";
 import { getAppSettings } from "../shared/storage";
 import { getRuleGroupById } from "../shared/sites";
 import type { AppSettings, RuleGroup } from "../shared/types";
@@ -20,9 +21,11 @@ function HandoffApp(): JSX.Element {
   const site = params.get("site") ?? "这个网站";
   const ruleGroupId = params.get("group") ?? undefined;
   const group = settings ? getRuleGroupById(settings, ruleGroupId) ?? settings.ruleGroups[0] : undefined;
-  const blockPage = group ? normalizeBlockPageConfig(group.blockPage, getDefaultBlockPageForRuleGroup(group)) : undefined;
+  const locale = settings ? getLocaleFromSettings(settings) : "zh-CN";
+  const t = getCatalog(locale);
+  const blockPage = group ? normalizeBlockPageConfig(group.blockPage, getDefaultBlockPageForRuleGroup(group, locale)) : undefined;
   const action = blockPage?.primaryAction;
-  const currentTime = new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  const currentTime = formatTime(new Date(), locale);
 
   useEffect(() => {
     void getAppSettings().then(setSettings);
@@ -39,10 +42,10 @@ function HandoffApp(): JSX.Element {
             </div>
             <p className="text-sm font-medium text-indigo-700">{group?.name ?? BRAND.nameZh}</p>
             <h1 className="mt-2 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl">
-              {action?.handoffTitle ?? "下一步"}
+              {action?.handoffTitle ?? t.handoff.fallbackTitle}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              已离开 {site}。这个页面只承接下一步内容，不会解锁原网站。
+              {t.handoff.leftSite(site)}
             </p>
           </div>
           <button
@@ -50,7 +53,7 @@ function HandoffApp(): JSX.Element {
             onClick={() => window.history.back()}
           >
             <ArrowLeft className="h-4 w-4" />
-            返回
+            {t.common.back}
           </button>
         </header>
 
@@ -66,37 +69,37 @@ function HandoffApp(): JSX.Element {
                 unlockMinutes: group.unlockMinutes,
                 time: currentTime
               })}
-              title={`${group.name} 承接页`}
+              title={t.handoff.iframeTitle(group.name)}
             />
           </section>
         ) : (
-          <EmptyState group={group} />
+          <EmptyState group={group} t={t} />
         )}
       </div>
     </main>
   );
 }
 
-function EmptyState({ group }: { group: RuleGroup | undefined }): JSX.Element {
+function EmptyState({ group, t }: { group: RuleGroup | undefined; t: ReturnType<typeof getCatalog> }): JSX.Element {
   return (
     <section className="rounded-xl border border-slate-200 bg-white/90 p-8 text-center shadow-soft">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50">
         <FileText className="h-7 w-7 text-indigo-600" />
       </div>
-      <h2 className="mt-5 text-xl font-semibold text-slate-950">还没有配置承接页内容</h2>
+      <h2 className="mt-5 text-xl font-semibold text-slate-950">{t.handoff.emptyTitle}</h2>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
-        可以在规则组的“阻断页展示”里选择“打开承接页”，再填入睡前提示、工作清单或复盘说明。
+        {t.handoff.emptyBody}
       </p>
       <div className="mx-auto mt-6 max-w-md rounded-lg border border-indigo-100 bg-indigo-50/70 p-4 text-left">
-        <p className="text-xs text-slate-500">当前规则组</p>
-        <p className="mt-1 font-medium text-indigo-900">{group?.name ?? "正在读取"}</p>
+        <p className="text-xs text-slate-500">{t.common.currentRuleGroup}</p>
+        <p className="mt-1 font-medium text-indigo-900">{group?.name ?? t.common.loading}</p>
       </div>
       <a
         className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
         href="options.html"
       >
         <ExternalLink className="h-4 w-4" />
-        打开设置
+        {t.handoff.openSettings}
       </a>
     </section>
   );

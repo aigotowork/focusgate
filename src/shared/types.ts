@@ -1,3 +1,5 @@
+import type { LanguagePreference } from "./i18n/locales";
+
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type BlockMode = "gentle" | "standard" | "strict";
 export type BlockPageTone = "sleep" | "focus" | "calm" | "strict";
@@ -62,11 +64,16 @@ export interface UnlockSession {
   sessionId: string;
 }
 
+export interface AppLanguageSettings {
+  preference: LanguagePreference;
+}
+
 export interface AppSettings {
   ruleGroups: RuleGroup[];
   unlocks: UnlockSession[];
   onboardingCompleted: boolean;
   remindedSessionIds: string[];
+  language: AppLanguageSettings;
   pauseUntil?: string;
 }
 
@@ -152,11 +159,10 @@ export type PopupPageStatus =
 export interface PopupPageContext {
   host: string;
   status: PopupPageStatus;
-  statusLabel: string;
-  statusDetail: string;
   matchedRuleGroupId?: string;
   matchedRuleGroupName?: string;
   selectedRuleGroupId?: string;
+  selectedRuleGroupName?: string;
   canAddToSelectedGroup: boolean;
   activeRuleGroupCount: number;
   upcomingRuleGroupCount: number;

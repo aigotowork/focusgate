@@ -1,5 +1,6 @@
-import { DEFAULT_RULE_GROUP, DEFAULT_SETTINGS } from "./defaults";
+import { DEFAULT_SETTINGS, createDefaultSettings } from "./defaults";
 import { getDefaultBlockPageForRuleGroup, normalizeBlockPageConfig } from "./block-page";
+import { normalizeLanguagePreference, type SupportedLocale } from "./i18n/locales";
 import type { AppSettings, GuardEvent, RuleGroup, SiteRule, UnlockSession } from "./types";
 
 const SETTINGS_KEY = "goodnightGuard.settings";
@@ -32,33 +33,37 @@ type LegacySettings = Omit<Partial<AppSettings>, "ruleGroups"> & {
   recordUnlockReason?: boolean;
 };
 
-export function normalizeStoredSettings(value?: LegacySettings): AppSettings {
-  const ruleGroups = normalizeRuleGroups(value);
+export function normalizeStoredSettings(value?: LegacySettings, defaultLocale: SupportedLocale = "zh-CN"): AppSettings {
+  const defaults = createDefaultSettings(defaultLocale);
+  const ruleGroups = normalizeRuleGroups(value, defaults.ruleGroups[0]);
   return {
-    ...DEFAULT_SETTINGS,
+    ...defaults,
     ...value,
     ruleGroups,
     unlocks: value?.unlocks ?? [],
-    onboardingCompleted: value?.onboardingCompleted ?? DEFAULT_SETTINGS.onboardingCompleted,
-    remindedSessionIds: value?.remindedSessionIds ?? []
+    onboardingCompleted: value?.onboardingCompleted ?? defaults.onboardingCompleted,
+    remindedSessionIds: value?.remindedSessionIds ?? [],
+    language: {
+      preference: normalizeLanguagePreference(value?.language?.preference)
+    }
   };
 }
 
-function normalizeRuleGroups(value?: LegacySettings): RuleGroup[] {
+function normalizeRuleGroups(value: LegacySettings | undefined, defaultRuleGroup: RuleGroup): RuleGroup[] {
   if (value?.ruleGroups && value.ruleGroups.length > 0) {
     return value.ruleGroups.map((group) => {
       const fallbackBlockPage = getDefaultBlockPageForRuleGroup(group);
       return {
-        ...DEFAULT_RULE_GROUP,
+        ...defaultRuleGroup,
         ...group,
         schedule: {
-          ...DEFAULT_RULE_GROUP.schedule,
+          ...defaultRuleGroup.schedule,
           ...group.schedule,
-          days: group.schedule?.days ?? DEFAULT_RULE_GROUP.schedule.days
+          days: group.schedule?.days ?? defaultRuleGroup.schedule.days
         },
         sites: group.sites ?? [],
         blockPage: normalizeBlockPageConfig(group.blockPage, fallbackBlockPage),
-        maxUnlocksPerSession: group.maxUnlocksPerSession ?? DEFAULT_RULE_GROUP.maxUnlocksPerSession
+        maxUnlocksPerSession: group.maxUnlocksPerSession ?? defaultRuleGroup.maxUnlocksPerSession
       };
     });
   }
@@ -66,25 +71,25 @@ function normalizeRuleGroups(value?: LegacySettings): RuleGroup[] {
   if (value?.schedule || value?.sites || value?.commitment) {
     return [
       {
-        ...DEFAULT_RULE_GROUP,
+        ...defaultRuleGroup,
         schedule: {
-          ...DEFAULT_RULE_GROUP.schedule,
+          ...defaultRuleGroup.schedule,
           ...value.schedule,
-          days: value.schedule?.days ?? DEFAULT_RULE_GROUP.schedule.days
+          days: value.schedule?.days ?? defaultRuleGroup.schedule.days
         },
-        sites: value.sites ?? DEFAULT_RULE_GROUP.sites,
-        commitment: value.commitment ?? DEFAULT_RULE_GROUP.commitment,
-        blockPage: normalizeBlockPageConfig(value.blockPage, DEFAULT_RULE_GROUP.blockPage),
-        unlockMinutes: value.unlockMinutes ?? DEFAULT_RULE_GROUP.unlockMinutes,
-        reminderMinutes: value.reminderMinutes ?? DEFAULT_RULE_GROUP.reminderMinutes,
-        blockMode: value.blockMode ?? DEFAULT_RULE_GROUP.blockMode,
-        maxUnlocksPerSession: value.maxUnlocksPerNight ?? DEFAULT_RULE_GROUP.maxUnlocksPerSession,
-        recordUnlockReason: value.recordUnlockReason ?? DEFAULT_RULE_GROUP.recordUnlockReason
+        sites: value.sites ?? defaultRuleGroup.sites,
+        commitment: value.commitment ?? defaultRuleGroup.commitment,
+        blockPage: normalizeBlockPageConfig(value.blockPage, defaultRuleGroup.blockPage),
+        unlockMinutes: value.unlockMinutes ?? defaultRuleGroup.unlockMinutes,
+        reminderMinutes: value.reminderMinutes ?? defaultRuleGroup.reminderMinutes,
+        blockMode: value.blockMode ?? defaultRuleGroup.blockMode,
+        maxUnlocksPerSession: value.maxUnlocksPerNight ?? defaultRuleGroup.maxUnlocksPerSession,
+        recordUnlockReason: value.recordUnlockReason ?? defaultRuleGroup.recordUnlockReason
       }
     ];
   }
 
-  return DEFAULT_SETTINGS.ruleGroups;
+  return [defaultRuleGroup];
 }
 
 function localGet(): StorageShape {
@@ -143,6 +148,11 @@ async function storageSet(value: StorageShape): Promise<void> {
 export async function getAppSettings(): Promise<AppSettings> {
   const store = await storageGet([SETTINGS_KEY]);
   return normalizeStoredSettings(store[SETTINGS_KEY]);
+}
+
+export async function hasStoredAppSettings(): Promise<boolean> {
+  const store = await storageGet([SETTINGS_KEY]);
+  return Boolean(store[SETTINGS_KEY]);
 }
 
 export async function saveAppSettings(settings: AppSettings): Promise<void> {

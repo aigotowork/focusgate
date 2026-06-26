@@ -35,6 +35,62 @@ describe("settings migration", () => {
     expect(settings.ruleGroups[0].sites[0].host).toBe("bilibili.com");
     expect(settings.ruleGroups[0].blockPage.title).toBe("现在是晚安时间");
     expect(settings.ruleGroups[0].blockPage.primaryAction).toMatchObject({ type: "close", externalUrl: "" });
+    expect(settings.language.preference).toBe("auto");
+  });
+
+  it("backfills language settings without rewriting existing rule-group copy", () => {
+    const settings = normalizeStoredSettings(
+      {
+        ruleGroups: [
+          {
+            id: "custom-focus",
+            name: "用户自己的规则",
+            enabled: true,
+            schedule: { enabled: true, startTime: "09:00", endTime: "18:00", days: [1, 2, 3, 4, 5] },
+            sites: [],
+            commitment: "这是我手写的承诺。",
+            blockPage: {
+              version: 1,
+              title: "我自己的阻断标题",
+              description: "我自己的阻断说明。",
+              primaryActionLabel: "我自己的按钮",
+              primaryAction: {
+                type: "close",
+                externalUrl: "",
+                handoffTitle: "我自己的承接页",
+                handoffHtml: "<main>custom</main>"
+              },
+              tone: "focus",
+              customHtmlEnabled: false,
+              customHtml: ""
+            },
+            reminderMinutes: 15,
+            blockMode: "standard",
+            unlockMinutes: 10,
+            maxUnlocksPerSession: 3,
+            recordUnlockReason: true,
+            createdAt: ""
+          }
+        ],
+        onboardingCompleted: true,
+        remindedSessionIds: []
+      },
+      "en"
+    );
+
+    expect(settings.language.preference).toBe("auto");
+    expect(settings.ruleGroups[0]).toMatchObject({
+      name: "用户自己的规则",
+      commitment: "这是我手写的承诺。",
+      blockPage: {
+        title: "我自己的阻断标题",
+        description: "我自己的阻断说明。",
+        primaryActionLabel: "我自己的按钮",
+        primaryAction: {
+          handoffTitle: "我自己的承接页"
+        }
+      }
+    });
   });
 
   it("adds a generic block page to existing non-sleep rule groups", () => {

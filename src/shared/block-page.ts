@@ -4,6 +4,8 @@ import type {
   BlockPagePrimaryActionType,
   RuleGroup
 } from "./types";
+import { getCatalog } from "./i18n/catalogs";
+import type { SupportedLocale } from "./i18n/locales";
 
 export const MAX_CUSTOM_HTML_BYTES = 100 * 1024;
 export const MAX_EXTERNAL_URL_CHARS = 2048;
@@ -15,33 +17,9 @@ export const DEFAULT_CLOSE_PRIMARY_ACTION: BlockPagePrimaryActionConfig = {
   handoffHtml: ""
 };
 
-export const DEFAULT_SLEEP_BLOCK_PAGE: BlockPageConfig = {
-  version: 1,
-  title: "现在是晚安时间",
-  description: "继续浏览会让明天早晨更难醒来。把屏幕放下，让这条边界开始生效。",
-  primaryActionLabel: "关掉网页，我去睡了",
-  primaryAction: {
-    ...DEFAULT_CLOSE_PRIMARY_ACTION,
-    handoffTitle: "睡前收束"
-  },
-  tone: "sleep",
-  customHtmlEnabled: false,
-  customHtml: ""
-};
+export const DEFAULT_SLEEP_BLOCK_PAGE: BlockPageConfig = createDefaultSleepBlockPage("zh-CN");
 
-export const DEFAULT_FOCUS_BLOCK_PAGE: BlockPageConfig = {
-  version: 1,
-  title: "现在是限制时间",
-  description: "这个网站正在打断当前规则组保护的时间。先离开这里，回到你真正想完成的事情。",
-  primaryActionLabel: "关闭页面，回到正事",
-  primaryAction: {
-    ...DEFAULT_CLOSE_PRIMARY_ACTION,
-    handoffTitle: "回到正事"
-  },
-  tone: "focus",
-  customHtmlEnabled: false,
-  customHtml: ""
-};
+export const DEFAULT_FOCUS_BLOCK_PAGE: BlockPageConfig = createDefaultFocusBlockPage("zh-CN");
 
 export interface BlockPageTemplateContext {
   groupName: string;
@@ -55,12 +33,55 @@ export interface BlockPageNormalizeOptions {
   preserveDraftExternalUrl?: boolean;
 }
 
-export function getDefaultBlockPageForRuleGroup(group: Pick<Partial<RuleGroup>, "id" | "name">): BlockPageConfig {
+export function createDefaultSleepBlockPage(locale: SupportedLocale): BlockPageConfig {
+  const copy = getCatalog(locale).blockPageDefaults.sleep;
+  return {
+    version: 1,
+    title: copy.title,
+    description: copy.description,
+    primaryActionLabel: copy.primaryActionLabel,
+    primaryAction: {
+      ...DEFAULT_CLOSE_PRIMARY_ACTION,
+      handoffTitle: copy.handoffTitle
+    },
+    tone: "sleep",
+    customHtmlEnabled: false,
+    customHtml: ""
+  };
+}
+
+export function createDefaultFocusBlockPage(locale: SupportedLocale): BlockPageConfig {
+  const copy = getCatalog(locale).blockPageDefaults.focus;
+  return {
+    version: 1,
+    title: copy.title,
+    description: copy.description,
+    primaryActionLabel: copy.primaryActionLabel,
+    primaryAction: {
+      ...DEFAULT_CLOSE_PRIMARY_ACTION,
+      handoffTitle: copy.handoffTitle
+    },
+    tone: "focus",
+    customHtmlEnabled: false,
+    customHtml: ""
+  };
+}
+
+export function getDefaultBlockPageForRuleGroup(
+  group: Pick<Partial<RuleGroup>, "id" | "name">,
+  locale: SupportedLocale = "zh-CN"
+): BlockPageConfig {
   const marker = `${group.id ?? ""} ${group.name ?? ""}`.toLowerCase();
-  if (marker.includes("goodnight") || marker.includes("sleep") || marker.includes("晚安") || marker.includes("睡")) {
-    return cloneBlockPageConfig(DEFAULT_SLEEP_BLOCK_PAGE);
+  if (
+    marker.includes("goodnight") ||
+    marker.includes("sleep") ||
+    marker.includes("晚安") ||
+    marker.includes("睡") ||
+    marker.includes("bedtime")
+  ) {
+    return createDefaultSleepBlockPage(locale);
   }
-  return cloneBlockPageConfig(DEFAULT_FOCUS_BLOCK_PAGE);
+  return createDefaultFocusBlockPage(locale);
 }
 
 export function normalizeBlockPageConfig(

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const SETTINGS_KEY = "goodnightGuard.settings";
 
 test("popup entry renders the extension summary", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/popup.html");
   await expect(page.locator("header").getByText("FocusGate", { exact: true })).toBeVisible();
   await expect(page.getByText("当前页面").first()).toBeVisible();
@@ -12,6 +13,7 @@ test("popup entry renders the extension summary", async ({ page }) => {
 });
 
 test("welcome entry explains the FocusGate brand and links to setup", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/welcome.html");
   await expect(page.getByText("FocusGate").first()).toBeVisible();
   await expect(page.getByRole("heading", { name: /该专注时/ })).toBeVisible();
@@ -35,6 +37,7 @@ test("popup prioritizes the current page matching a non-sleep rule group", async
 });
 
 test("options entry renders editable settings", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/options.html");
   await expect(page.getByRole("heading", { name: "完成规则组初始设置" })).toBeVisible();
   await expect(page.getByText("规则组", { exact: true })).toBeVisible();
@@ -48,7 +51,30 @@ test("options entry renders editable settings", async ({ page }) => {
   await expect(page.locator('input[value="现在是限制时间"]')).toBeVisible();
 });
 
+test("options can switch to English and re-render immediately", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
+  await page.goto("/options.html");
+  await page.getByLabel("应用语言").selectOption("en");
+  await expect(page.getByRole("heading", { name: "Complete initial rule-group setup" })).toBeVisible();
+  await expect(page.getByText("Rule groups", { exact: true })).toBeVisible();
+  await expect(page.getByText("Block strength")).toBeVisible();
+  await expect(page.getByRole("button", { name: "New rule group" })).toBeVisible();
+});
+
+test("popup renders English status and stats labels", async ({ page }) => {
+  await mockActiveTabUrl(page, "https://127.0.0.1/video");
+  const ruleGroup = await buildActiveRuleGroup(page);
+  await seedSettings(page, [ruleGroup], "en");
+
+  await page.goto("/popup.html");
+  await expect(page.getByRole("heading", { name: "This page will be blocked" })).toBeVisible();
+  await expect(page.getByText("Blocked today")).toBeVisible();
+  await expect(page.getByText("Unlocked today")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Already in this rule group" })).toBeVisible();
+});
+
 test("options saves per-group block page copy", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/options.html");
   await page.getByRole("button", { name: "新建规则组" }).click();
   await page.locator('input[value="现在是限制时间"]').fill("现在是专注时间");
@@ -61,6 +87,7 @@ test("options saves per-group block page copy", async ({ page }) => {
 });
 
 test("options saves per-group primary action settings", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/options.html");
   await page.getByRole("button", { name: "新建规则组" }).click();
   await page.getByRole("button", { name: /跳转链接/ }).click();
@@ -74,6 +101,7 @@ test("options saves per-group primary action settings", async ({ page }) => {
 });
 
 test("block entry renders the bedtime boundary", async ({ page }) => {
+  await seedLanguage(page, "zh-CN");
   await page.goto("/block.html?site=youtube.com&group=goodnight-boundary");
   await expect(page.getByText("晚安守护").first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "现在是晚安时间" })).toBeVisible();
@@ -122,6 +150,51 @@ test("block entry renders a custom group block page", async ({ page }) => {
   await expect(page.getByText("视频站点先暂停，回到今天的主线。")).toBeVisible();
   await expect(page.getByRole("button", { name: "关闭页面，回到任务" })).toBeVisible();
   await expect(page.getByText("现在是晚安时间")).toHaveCount(0);
+});
+
+test("block entry uses English chrome while preserving stored group copy", async ({ page }) => {
+  await seedSettings(
+    page,
+    [
+      {
+        id: "custom-focus",
+        name: "工作时间专注",
+        enabled: true,
+        schedule: { enabled: true, startTime: "09:00", endTime: "18:00", days: [1, 2, 3, 4, 5] },
+        sites: [{ id: "bilibili", host: "bilibili.com", createdAt: "" }],
+        commitment: "先完成今天最重要的工作。",
+        blockPage: {
+          version: 1,
+          title: "现在是专注时间",
+          description: "视频站点先暂停，回到今天的主线。",
+          primaryActionLabel: "关闭页面，回到任务",
+          primaryAction: {
+            type: "close",
+            externalUrl: "",
+            handoffTitle: "回到正事",
+            handoffHtml: ""
+          },
+          tone: "focus",
+          customHtmlEnabled: false,
+          customHtml: ""
+        },
+        reminderMinutes: 15,
+        blockMode: "standard",
+        unlockMinutes: 10,
+        maxUnlocksPerSession: 3,
+        recordUnlockReason: true,
+        createdAt: ""
+      }
+    ],
+    "en"
+  );
+
+  await page.goto("/block.html?site=bilibili.com&group=custom-focus");
+  await expect(page.getByText("工作时间专注").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "现在是专注时间" })).toBeVisible();
+  await expect(page.getByText("Blocked access: bilibili.com")).toBeVisible();
+  await page.getByRole("button", { name: /Temporary unlock/ }).click();
+  await expect(page.getByText("Take a breath and pause...")).toBeVisible();
 });
 
 test("block entry renders custom HTML inside a sandboxed iframe", async ({ page }) => {
@@ -260,7 +333,8 @@ test("content reminder overlay appears on listed sites during the reminder windo
           ruleGroups: [group],
           unlocks: [],
           onboardingCompleted: true,
-          remindedSessionIds: []
+          remindedSessionIds: [],
+          language: { preference: "zh-CN" }
         })
       );
     },
@@ -298,6 +372,35 @@ test("content reminder overlay appears on listed sites during the reminder windo
   expect(progressStyle.animationDuration).toMatch(/s$/);
 });
 
+test("content reminder overlay uses English when configured", async ({ page }) => {
+  await page.goto("/popup.html");
+  const ruleGroup = await buildReminderRuleGroup(page);
+  await page.evaluate(
+    ({ key, group }) => {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          ruleGroups: [group],
+          unlocks: [],
+          onboardingCompleted: true,
+          remindedSessionIds: [],
+          language: { preference: "en" }
+        })
+      );
+    },
+    { key: SETTINGS_KEY, group: ruleGroup }
+  );
+
+  await injectReminderOverlay(page);
+  const overlay = page.locator("#goodnight-guard-reminder-root");
+  await expect(overlay).toBeAttached();
+  const text = page.locator("#goodnight-guard-reminder-root").evaluate((node) => node.shadowRoot?.textContent ?? "");
+  await expect(text).resolves.toContain("FocusGate");
+  await expect(text).resolves.toContain("测试提醒 starts soon");
+  await expect(text).resolves.toContain("Restricted time starts in");
+  await expect(text).resolves.toContain("Got it");
+});
+
 test("content reminder overlay stays hidden on unlisted sites and can be dismissed", async ({ page }) => {
   await page.goto("/popup.html");
   const ruleGroup = await buildReminderRuleGroup(page, "example.com");
@@ -309,7 +412,8 @@ test("content reminder overlay stays hidden on unlisted sites and can be dismiss
           ruleGroups: [group],
           unlocks: [],
           onboardingCompleted: true,
-          remindedSessionIds: []
+          remindedSessionIds: [],
+          language: { preference: "zh-CN" }
         })
       );
     },
@@ -328,7 +432,8 @@ test("content reminder overlay stays hidden on unlisted sites and can be dismiss
           ruleGroups: [group],
           unlocks: [],
           onboardingCompleted: true,
-          remindedSessionIds: []
+          remindedSessionIds: [],
+          language: { preference: "zh-CN" }
         })
       );
     },
@@ -347,22 +452,81 @@ test("content reminder overlay stays hidden on unlisted sites and can be dismiss
   await expect(page.locator("#goodnight-guard-reminder-root")).toHaveCount(0);
 });
 
-async function seedSettings(page: import("@playwright/test").Page, ruleGroups: unknown[]): Promise<void> {
+async function seedSettings(
+  page: import("@playwright/test").Page,
+  ruleGroups: unknown[],
+  languagePreference = "zh-CN"
+): Promise<void> {
   await page.goto("/popup.html");
   await page.evaluate(
-    ({ key, groups }) => {
+    ({ key, groups, preference }) => {
       localStorage.setItem(
         key,
         JSON.stringify({
           ruleGroups: groups,
           unlocks: [],
           onboardingCompleted: true,
-          remindedSessionIds: []
+          remindedSessionIds: [],
+          language: { preference }
         })
       );
       localStorage.setItem("goodnightGuard.events", "[]");
     },
-    { key: SETTINGS_KEY, groups: ruleGroups }
+    { key: SETTINGS_KEY, groups: ruleGroups, preference: languagePreference }
+  );
+}
+
+async function seedLanguage(page: import("@playwright/test").Page, languagePreference: string): Promise<void> {
+  await page.goto("/popup.html");
+  await page.evaluate(
+    ({ key, preference }) => {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          ruleGroups: [
+            {
+              id: "goodnight-boundary",
+              name: "晚安守护",
+              enabled: true,
+              schedule: { enabled: true, startTime: "23:00", endTime: "07:00", days: [0, 1, 2, 3, 4, 5, 6] },
+              sites: [
+                { id: "youtube-com", host: "youtube.com", createdAt: new Date(0).toISOString() },
+                { id: "bilibili-com", host: "bilibili.com", createdAt: new Date(0).toISOString() },
+                { id: "reddit-com", host: "reddit.com", createdAt: new Date(0).toISOString() }
+              ],
+              commitment: "明天早上的我，会感谢现在睡觉的我。",
+              blockPage: {
+                version: 1,
+                title: "现在是晚安时间",
+                description: "继续浏览会让明天早晨更难醒来。把屏幕放下，让这条边界开始生效。",
+                primaryActionLabel: "关掉网页，我去睡了",
+                primaryAction: {
+                  type: "close",
+                  externalUrl: "",
+                  handoffTitle: "睡前收束",
+                  handoffHtml: ""
+                },
+                tone: "sleep",
+                customHtmlEnabled: false,
+                customHtml: ""
+              },
+              reminderMinutes: 30,
+              blockMode: "standard",
+              unlockMinutes: 10,
+              maxUnlocksPerSession: 3,
+              recordUnlockReason: true,
+              createdAt: new Date(0).toISOString()
+            }
+          ],
+          unlocks: [],
+          onboardingCompleted: false,
+          remindedSessionIds: [],
+          language: { preference }
+        })
+      );
+      localStorage.setItem("goodnightGuard.events", "[]");
+    },
+    { key: SETTINGS_KEY, preference: languagePreference }
   );
 }
 

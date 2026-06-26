@@ -1,10 +1,19 @@
 import {
   ensureDefaultSettings,
+  getAppSettings,
+  hasStoredAppSettings,
   markSessionReminded,
   recordGuardEvent,
+  saveAppSettings,
   updateAppSettings
 } from "../shared/storage";
-import { BRAND } from "../shared/brand";
+import { createDefaultSettings } from "../shared/defaults";
+import {
+  getBackgroundBrowserLanguages,
+  getCatalog,
+  getLocaleFromSettings,
+  resolveBackgroundLocale
+} from "../shared/i18n";
 import { evaluateAccess } from "../shared/sites";
 import { evaluateReminder, getNextReminderDate, getNextScheduleStartDate } from "../shared/time";
 import type { AppSettings } from "../shared/types";
@@ -45,13 +54,26 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 async function handleInstalled(): Promise<void> {
-  const settings = await ensureDefaultSettings();
+  const settings = await ensureInstalledSettings();
   await scheduleNextTick(settings);
   await chrome.alarms.create(CLEANUP_UNLOCKS_ALARM, { periodInMinutes: 5 });
 
   if (!settings.onboardingCompleted) {
     await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
   }
+}
+
+async function ensureInstalledSettings(): Promise<AppSettings> {
+  if (await hasStoredAppSettings()) {
+    const existingSettings = await getAppSettings();
+    await saveAppSettings(existingSettings);
+    return existingSettings;
+  }
+
+  const locale = await resolveBackgroundLocale();
+  const settings = createDefaultSettings(locale);
+  await saveAppSettings(settings);
+  return settings;
 }
 
 async function handleNavigation(tabId: number, url: string, existingSettings?: AppSettings): Promise<void> {
@@ -109,11 +131,12 @@ async function maybeNotifyReminder(ruleGroupId: string, settings: AppSettings): 
     return;
   }
 
+  const t = getCatalog(getLocaleFromSettings(settings, await getBackgroundBrowserLanguages()));
   await chrome.notifications.create(`goodnight-reminder-${decision.ruleGroupId}-${decision.sessionId}`, {
     type: "basic",
     iconUrl: chrome.runtime.getURL("icon-128.png"),
-    title: `${decision.ruleGroupName}即将开启`,
-    message: `${decision.reminderMinutes} 分钟后进入限制时间。${BRAND.nameZh} 会帮你守住这条边界。`
+    title: t.background.reminderTitle(decision.ruleGroupName),
+    message: t.background.reminderMessage(decision.reminderMinutes ?? group.reminderMinutes)
   });
   await markSessionReminded(decision.ruleGroupId, decision.sessionId);
   await recordGuardEvent({
