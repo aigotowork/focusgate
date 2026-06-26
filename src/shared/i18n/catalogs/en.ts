@@ -183,7 +183,8 @@ export const en: LocaleCatalog = {
       unlock: "Unlock settings",
       stats: "Current group stats",
       privacy: "Privacy and data",
-      language: "Language"
+      language: "Language",
+      transfer: "Backup and migration"
     },
     ruleGroup: {
       new: "New rule group",
@@ -267,6 +268,35 @@ export const en: LocaleCatalog = {
       description:
         "The extension stores settings, domain-level events, rule-group attribution, and unlock reasons locally. It does not record page titles, full browsing history, or page content.",
       clear: "Clear stats and temporary state"
+    },
+    transfer: {
+      exportTitle: "Export settings",
+      exportDescription: "Choose the rule groups to carry over. The file includes settings only, not temporary unlocks, reminder records, or stats events.",
+      exportSelectAll: "Select all rule groups",
+      exportAction: "Export JSON",
+      importTitle: "Import settings",
+      importDescription: "Restore rule groups from a JSON file exported by another browser. A summary is shown before import.",
+      importMode: "Import mode",
+      mergeMode: "Add to current settings",
+      mergeModeNote: "Rule groups with the same ID are replaced by the imported copy. Other local groups stay in place.",
+      replaceMode: "Replace current settings",
+      replaceModeNote: "Current transferable settings are replaced by the file. Stats and temporary state are not migrated.",
+      chooseFile: "Choose JSON file",
+      applyImport: "Import settings",
+      selectedFile: (fileName) => `Selected: ${fileName}`,
+      summary: (ruleGroupCount, addedRuleGroupCount, replacedRuleGroupCount) =>
+        `File contains ${ruleGroupCount} ${ruleGroupCount === 1 ? "rule group" : "rule groups"}; ${addedRuleGroupCount} will be added and ${replacedRuleGroupCount} replaced.`,
+      replaceSummary: (ruleGroupCount, removedRuleGroupCount) =>
+        `File contains ${ruleGroupCount} ${ruleGroupCount === 1 ? "rule group" : "rule groups"}; replace mode will remove ${removedRuleGroupCount} local ${removedRuleGroupCount === 1 ? "rule group" : "rule groups"} not in the file.`,
+      exported: (ruleGroupCount) => `Exported ${ruleGroupCount} ${ruleGroupCount === 1 ? "rule group" : "rule groups"}.`,
+      imported: (ruleGroupCount) => `Imported ${ruleGroupCount} ${ruleGroupCount === 1 ? "rule group" : "rule groups"}.`,
+      errors: {
+        emptyRuleGroups: "Select at least one rule group, or import a file that contains rule groups.",
+        invalidJson: "The file is not valid JSON.",
+        invalidSchema: "This is not a FocusGate settings export file.",
+        unsupportedVersion: "This settings file version is not supported.",
+        generic: "Import or export failed. Check the file and try again."
+      }
     }
   },
   block: {

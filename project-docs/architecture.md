@@ -51,6 +51,8 @@ FocusGate has two localization layers:
 - Chrome extension metadata uses `public/_locales/` plus `__MSG_...__` placeholders in `public/manifest.json`. Chrome folder names follow Chrome conventions such as `zh_CN`.
 - Runtime UI uses typed catalogs under `src/shared/i18n/`. Runtime locale ids use BCP-style values such as `zh-CN` and `en`.
 
+The detailed maintenance guide lives in `project-docs/i18n.md`.
+
 `AppSettings.language.preference` stores `"auto"`, `"zh-CN"`, or `"en"`. `"auto"` resolves from the current browser language list and falls back to `zh-CN`. DOM pages and the content reminder use `navigator.languages`; the service worker uses `chrome.i18n.getAcceptLanguages()` and falls back to `chrome.i18n.getUILanguage()`.
 
 Locale-specific defaults are used for new installs, new rule groups, and missing fallback values during normalization. Saved rule group names, commitments, block-page titles, primary action labels, custom block HTML, and handoff HTML are user content and must not be translated or overwritten when the language preference changes.

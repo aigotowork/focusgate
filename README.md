@@ -91,7 +91,7 @@ docs/            GitHub Pages 公开站点、隐私政策、支持页和 blog
 project-docs/    内部架构、上架清单、文案、截图流程和历史资料
 ```
 
-产品需求见 `prd.md`，视觉与文案原则见 `DESIGN.md`，MV3 架构说明见 `project-docs/architecture.md`，页面内提醒设计见 `project-docs/reminder-experience.md`。历史 UI 草图已归档到 `project-docs/archive/`，不要作为当前实现依据。
+产品需求见 `prd.md`，视觉与文案原则见 `DESIGN.md`，MV3 架构说明见 `project-docs/architecture.md`，运行时多语言维护说明见 `project-docs/i18n.md`，页面内提醒设计见 `project-docs/reminder-experience.md`。历史 UI 草图和已实施计划已归档到 `project-docs/archive/`，不要作为当前实现依据。
 
 ## 上架准备
 

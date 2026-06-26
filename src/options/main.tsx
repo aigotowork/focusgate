@@ -3,9 +3,11 @@ import { createRoot } from "react-dom/client";
 import {
   BarChart3,
   Bell,
+  CheckSquare,
   Clock,
   Code2,
   Database,
+  Download,
   Eye,
   FileText,
   FileUp,
@@ -19,7 +21,8 @@ import {
   ShieldAlert,
   SlidersHorizontal,
   Trash2,
-  Unlock
+  Unlock,
+  Upload
 } from "lucide-react";
 import "../styles/global.css";
 import { BrandMark, BrandWordmark } from "../shared/brand-ui";
@@ -44,6 +47,18 @@ import {
 } from "../shared/i18n";
 import { buildStatsSummary } from "../shared/stats";
 import { clearGuardData, getAppSettings, getGuardEvents, saveAppSettings } from "../shared/storage";
+import {
+  buildSettingsExport,
+  getSettingsExportFileName,
+  mergeImportedSettings,
+  parseSettingsImport,
+  SettingsTransferError,
+  stringifySettingsExport,
+  summarizeSettingsImport,
+  type SettingsExportFile,
+  type SettingsImportMode,
+  type SettingsImportSummary
+} from "../shared/settings-transfer";
 import { createSiteRule } from "../shared/sites";
 import type {
   AppSettings,
@@ -73,6 +88,13 @@ function OptionsApp(): JSX.Element {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [events, setEvents] = useState<GuardEvent[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState(DEFAULT_SETTINGS.ruleGroups[0].id);
+  const [exportGroupIds, setExportGroupIds] = useState<string[]>(DEFAULT_SETTINGS.ruleGroups.map((group) => group.id));
+  const [importMode, setImportMode] = useState<SettingsImportMode>("merge");
+  const [importFileName, setImportFileName] = useState("");
+  const [pendingImport, setPendingImport] = useState<SettingsExportFile | null>(null);
+  const [importSummary, setImportSummary] = useState<SettingsImportSummary | null>(null);
+  const [transferMessage, setTransferMessage] = useState("");
+  const [transferError, setTransferError] = useState("");
   const [draftSite, setDraftSite] = useState("");
   const [saved, setSaved] = useState(false);
   const onboardingRequested = useMemo(() => new URLSearchParams(window.location.search).get("onboarding") === "1", []);
@@ -86,11 +108,21 @@ function OptionsApp(): JSX.Element {
     { preserveDraftExternalUrl: true }
   );
   const stats = useMemo(() => buildStatsSummary(events, selectedGroup), [events, selectedGroup]);
+  const importSummaryText = importSummary
+    ? importMode === "replace"
+      ? t.options.transfer.replaceSummary(importSummary.ruleGroupCount, importSummary.removedRuleGroupCount)
+      : t.options.transfer.summary(
+          importSummary.ruleGroupCount,
+          importSummary.addedRuleGroupCount,
+          importSummary.replacedRuleGroupCount
+        )
+    : "";
 
   useEffect(() => {
     void Promise.all([getAppSettings(), getGuardEvents()]).then(([nextSettings, nextEvents]) => {
       setSettings(nextSettings);
       setSelectedGroupId(nextSettings.ruleGroups[0]?.id ?? DEFAULT_SETTINGS.ruleGroups[0].id);
+      setExportGroupIds(nextSettings.ruleGroups.map((group) => group.id));
       setEvents(nextEvents);
     });
   }, []);
@@ -134,6 +166,7 @@ function OptionsApp(): JSX.Element {
     };
     setSettings({ ...settings, ruleGroups: [...settings.ruleGroups, nextGroup] });
     setSelectedGroupId(id);
+    setExportGroupIds((ids) => [...ids, id]);
   }
 
   function deleteGroup(id: string): void {
@@ -142,6 +175,7 @@ function OptionsApp(): JSX.Element {
     }
     const nextGroups = settings.ruleGroups.filter((group) => group.id !== id);
     setSettings({ ...settings, ruleGroups: nextGroups });
+    setExportGroupIds((ids) => ids.filter((groupId) => groupId !== id));
     setSelectedGroupId(nextGroups[0].id);
   }
 
@@ -239,6 +273,79 @@ function OptionsApp(): JSX.Element {
     setEvents(nextEvents);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1600);
+  }
+
+  function toggleExportGroup(id: string): void {
+    setTransferMessage("");
+    setTransferError("");
+    setExportGroupIds((ids) => (ids.includes(id) ? ids.filter((groupId) => groupId !== id) : [...ids, id]));
+  }
+
+  function toggleAllExportGroups(): void {
+    setTransferMessage("");
+    setTransferError("");
+    setExportGroupIds((ids) => (ids.length === settings.ruleGroups.length ? [] : settings.ruleGroups.map((group) => group.id)));
+  }
+
+  function exportSettings(): void {
+    setTransferMessage("");
+    setTransferError("");
+    try {
+      const exportedAt = new Date();
+      const exportFile = buildSettingsExport(settings, exportGroupIds, exportedAt);
+      const blob = new Blob([stringifySettingsExport(exportFile)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = getSettingsExportFileName(exportedAt);
+      link.click();
+      URL.revokeObjectURL(url);
+      setTransferMessage(t.options.transfer.exported(exportFile.settings.ruleGroups.length));
+    } catch (error) {
+      setTransferError(getTransferErrorMessage(error, t));
+    }
+  }
+
+  async function readImportFile(file: File | undefined): Promise<void> {
+    setTransferMessage("");
+    setTransferError("");
+    setPendingImport(null);
+    setImportSummary(null);
+    setImportFileName(file?.name ?? "");
+    if (!file) {
+      return;
+    }
+
+    try {
+      const parsed = parseSettingsImport(await file.text(), locale);
+      setPendingImport(parsed);
+      setImportSummary(summarizeSettingsImport(settings, parsed));
+    } catch (error) {
+      setTransferError(getTransferErrorMessage(error, t));
+    }
+  }
+
+  async function applyImport(): Promise<void> {
+    if (!pendingImport) {
+      return;
+    }
+    setTransferMessage("");
+    setTransferError("");
+    try {
+      const nextSettings = mergeImportedSettings(settings, pendingImport, importMode);
+      await saveAppSettings(nextSettings);
+      setSettings(nextSettings);
+      setExportGroupIds(nextSettings.ruleGroups.map((group) => group.id));
+      setSelectedGroupId(nextSettings.ruleGroups[0]?.id ?? DEFAULT_SETTINGS.ruleGroups[0].id);
+      setPendingImport(null);
+      setImportSummary(null);
+      setImportFileName("");
+      setTransferMessage(t.options.transfer.imported(pendingImport.settings.ruleGroups.length));
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 1600);
+    } catch (error) {
+      setTransferError(getTransferErrorMessage(error, t));
+    }
   }
 
   return (
@@ -664,6 +771,116 @@ function OptionsApp(): JSX.Element {
               </Field>
             </Panel>
 
+            <Panel icon={<Download className="h-5 w-5" />} title={t.options.panels.transfer}>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                    <CheckSquare className="h-4 w-4 text-indigo-600" />
+                    {t.options.transfer.exportTitle}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">{t.options.transfer.exportDescription}</p>
+                </div>
+                <label className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm">
+                  <span>{t.options.transfer.exportSelectAll}</span>
+                  <input
+                    checked={exportGroupIds.length === settings.ruleGroups.length}
+                    className="h-5 w-5 accent-indigo-500"
+                    type="checkbox"
+                    onChange={toggleAllExportGroups}
+                  />
+                </label>
+                <div className="space-y-2">
+                  {settings.ruleGroups.map((group) => (
+                    <label
+                      key={group.id}
+                      className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-stone-50 px-4 py-3 text-sm"
+                    >
+                      <span className="min-w-0 truncate text-slate-700">{group.name}</span>
+                      <input
+                        checked={exportGroupIds.includes(group.id)}
+                        className="h-5 w-5 shrink-0 accent-indigo-500"
+                        type="checkbox"
+                        onChange={() => toggleExportGroup(group.id)}
+                      />
+                    </label>
+                  ))}
+                </div>
+                <button
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={exportGroupIds.length === 0}
+                  onClick={exportSettings}
+                >
+                  <Download className="h-4 w-4" />
+                  {t.options.transfer.exportAction}
+                </button>
+              </div>
+
+              <div className="border-t border-slate-200 pt-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                  <Upload className="h-4 w-4 text-indigo-600" />
+                  {t.options.transfer.importTitle}
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{t.options.transfer.importDescription}</p>
+              </div>
+
+              <div>
+                <p className="mb-3 text-sm font-medium text-slate-700">{t.options.transfer.importMode}</p>
+                <div className="grid gap-3">
+                  <ImportModeButton
+                    checked={importMode === "merge"}
+                    label={t.options.transfer.mergeMode}
+                    note={t.options.transfer.mergeModeNote}
+                    onClick={() => setImportMode("merge")}
+                  />
+                  <ImportModeButton
+                    checked={importMode === "replace"}
+                    label={t.options.transfer.replaceMode}
+                    note={t.options.transfer.replaceModeNote}
+                    onClick={() => setImportMode("replace")}
+                  />
+                </div>
+              </div>
+
+              <label className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-800">
+                <Upload className="h-4 w-4" />
+                {t.options.transfer.chooseFile}
+                <input
+                  accept=".json,application/json"
+                  className="sr-only"
+                  type="file"
+                  onChange={(event) => {
+                    void readImportFile(event.currentTarget.files?.[0]);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </label>
+
+              {importFileName && <p className="text-xs leading-5 text-slate-500">{t.options.transfer.selectedFile(importFileName)}</p>}
+              {importSummary && (
+                <p className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm leading-6 text-indigo-900">
+                  {importSummaryText}
+                </p>
+              )}
+              {transferError && (
+                <p className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">
+                  {transferError}
+                </p>
+              )}
+              {transferMessage && (
+                <p className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700">
+                  {transferMessage}
+                </p>
+              )}
+              <button
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={!pendingImport}
+                onClick={() => void applyImport()}
+              >
+                <Upload className="h-4 w-4" />
+                {t.options.transfer.applyImport}
+              </button>
+            </Panel>
+
             <Panel icon={<Unlock className="h-5 w-5" />} title={t.options.panels.unlock}>
               <Field label={t.options.unlock.minutes}>
                 <input
@@ -761,6 +978,33 @@ function Metric({ label, value }: { label: string; value: number }): JSX.Element
       <p className="text-xs text-slate-500">{label}</p>
       <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
     </div>
+  );
+}
+
+function ImportModeButton({
+  checked,
+  label,
+  note,
+  onClick
+}: {
+  checked: boolean;
+  label: string;
+  note: string;
+  onClick: () => void;
+}): JSX.Element {
+  return (
+    <button
+      className={`rounded-lg border p-3 text-left transition-colors ${
+        checked
+          ? "border-indigo-300 bg-indigo-50 text-indigo-950"
+          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-stone-50"
+      }`}
+      type="button"
+      onClick={onClick}
+    >
+      <span className="block text-sm font-semibold">{label}</span>
+      <span className="mt-2 block text-xs leading-5 text-slate-500">{note}</span>
+    </button>
   );
 }
 
@@ -908,6 +1152,22 @@ function clampNumber(value: number, min: number, max: number): number {
     return min;
   }
   return Math.min(max, Math.max(min, value));
+}
+
+function getTransferErrorMessage(error: unknown, t: LocaleCatalog): string {
+  if (error instanceof SettingsTransferError) {
+    switch (error.code) {
+      case "empty_rule_groups":
+        return t.options.transfer.errors.emptyRuleGroups;
+      case "invalid_json":
+        return t.options.transfer.errors.invalidJson;
+      case "invalid_schema":
+        return t.options.transfer.errors.invalidSchema;
+      case "unsupported_version":
+        return t.options.transfer.errors.unsupportedVersion;
+    }
+  }
+  return t.options.transfer.errors.generic;
 }
 
 createRoot(document.getElementById("root")!).render(<OptionsApp />);

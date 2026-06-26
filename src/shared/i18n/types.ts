@@ -130,6 +130,7 @@ export interface LocaleCatalog {
       stats: string;
       privacy: string;
       language: string;
+      transfer: string;
     };
     ruleGroup: {
       new: string;
@@ -198,6 +199,33 @@ export interface LocaleCatalog {
     privacy: {
       description: string;
       clear: string;
+    };
+    transfer: {
+      exportTitle: string;
+      exportDescription: string;
+      exportSelectAll: string;
+      exportAction: string;
+      importTitle: string;
+      importDescription: string;
+      importMode: string;
+      mergeMode: string;
+      mergeModeNote: string;
+      replaceMode: string;
+      replaceModeNote: string;
+      chooseFile: string;
+      applyImport: string;
+      selectedFile: (fileName: string) => string;
+      summary: (ruleGroupCount: number, addedRuleGroupCount: number, replacedRuleGroupCount: number) => string;
+      replaceSummary: (ruleGroupCount: number, removedRuleGroupCount: number) => string;
+      exported: (ruleGroupCount: number) => string;
+      imported: (ruleGroupCount: number) => string;
+      errors: {
+        emptyRuleGroups: string;
+        invalidJson: string;
+        invalidSchema: string;
+        unsupportedVersion: string;
+        generic: string;
+      };
     };
   };
   block: {

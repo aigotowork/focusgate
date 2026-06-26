@@ -180,7 +180,8 @@ export const zhCN: LocaleCatalog = {
       unlock: "解锁设置",
       stats: "当前组统计",
       privacy: "隐私与数据",
-      language: "语言"
+      language: "语言",
+      transfer: "备份与迁移"
     },
     ruleGroup: {
       new: "新建规则组",
@@ -263,6 +264,35 @@ export const zhCN: LocaleCatalog = {
     privacy: {
       description: "插件只在本地保存设置、域名级事件、规则组归属和解锁原因，不记录页面标题、完整浏览历史或网页内容。",
       clear: "清空统计与临时状态"
+    },
+    transfer: {
+      exportTitle: "导出配置",
+      exportDescription: "选择要带走的规则组。导出文件只包含配置，不包含临时解锁、提醒记录或统计事件。",
+      exportSelectAll: "全选规则组",
+      exportAction: "导出 JSON",
+      importTitle: "导入配置",
+      importDescription: "从另一台浏览器导出的 JSON 文件恢复规则组。导入前会先读取摘要。",
+      importMode: "导入方式",
+      mergeMode: "叠加到当前配置",
+      mergeModeNote: "同 ID 规则组会被导入内容替换，其它本地规则组保留。",
+      replaceMode: "覆盖当前配置",
+      replaceModeNote: "当前可迁移配置会被文件内容替换，统计和临时状态不会迁移。",
+      chooseFile: "选择 JSON 文件",
+      applyImport: "确认导入",
+      selectedFile: (fileName) => `已选择：${fileName}`,
+      summary: (ruleGroupCount, addedRuleGroupCount, replacedRuleGroupCount) =>
+        `文件包含 ${ruleGroupCount} 个规则组；将新增 ${addedRuleGroupCount} 个，替换 ${replacedRuleGroupCount} 个。`,
+      replaceSummary: (ruleGroupCount, removedRuleGroupCount) =>
+        `文件包含 ${ruleGroupCount} 个规则组；覆盖后会移除 ${removedRuleGroupCount} 个不在文件内的本地规则组。`,
+      exported: (ruleGroupCount) => `已导出 ${ruleGroupCount} 个规则组。`,
+      imported: (ruleGroupCount) => `已导入 ${ruleGroupCount} 个规则组。`,
+      errors: {
+        emptyRuleGroups: "请至少选择一个规则组，或导入包含规则组的文件。",
+        invalidJson: "文件不是有效的 JSON。",
+        invalidSchema: "这不是 FocusGate / 守界 的配置导出文件。",
+        unsupportedVersion: "这个配置文件版本暂不支持。",
+        generic: "导入或导出失败，请检查文件后再试。"
+      }
     }
   },
   block: {

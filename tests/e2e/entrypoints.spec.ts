@@ -61,6 +61,60 @@ test("options can switch to English and re-render immediately", async ({ page })
   await expect(page.getByRole("button", { name: "New rule group" })).toBeVisible();
 });
 
+test("options can export selected rule groups and import settings", async ({ page }) => {
+  await seedSettings(page, [staticRuleGroup("sleep", "晚安守护"), staticRuleGroup("work", "工作时间专注")]);
+  await page.goto("/options.html");
+
+  await expect(page.getByText("备份与迁移")).toBeVisible();
+  const sleepExportToggle = page
+    .locator("label")
+    .filter({ hasText: "晚安守护" })
+    .locator('input[type="checkbox"]');
+  await sleepExportToggle.uncheck();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "导出 JSON" }).click();
+  const download = await downloadPromise;
+  const exportText = await download.createReadStream().then(
+    (stream) =>
+      new Promise<string>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+        stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+        stream.on("error", reject);
+      })
+  );
+  const exported = JSON.parse(exportText) as { settings: { ruleGroups: Array<{ id: string; name: string }> } };
+  expect(exported.settings.ruleGroups.map((group) => ({ id: group.id, name: group.name }))).toEqual([
+    { id: "work", name: "工作时间专注" }
+  ]);
+
+  const importPayload = {
+    schema: "focusgate.settings.export",
+    version: 1,
+    exportedAt: "2026-06-27T10:00:00.000Z",
+    appVersion: "0.1.0",
+    settings: {
+      ruleGroups: [staticRuleGroup("work", "导入后的工作组"), staticRuleGroup("reset", "戒断节制")],
+      onboardingCompleted: true,
+      language: { preference: "zh-CN" }
+    }
+  };
+  await page.getByLabel("选择 JSON 文件").setInputFiles({
+    name: "focusgate-settings.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(importPayload))
+  });
+  await expect(page.getByText("文件包含 2 个规则组；将新增 1 个，替换 1 个。")).toBeVisible();
+  await page.getByRole("button", { name: /覆盖当前配置/ }).click();
+  await expect(page.getByText("文件包含 2 个规则组；覆盖后会移除 1 个不在文件内的本地规则组。")).toBeVisible();
+  await page.getByRole("button", { name: /叠加到当前配置/ }).click();
+  await page.getByRole("button", { name: "确认导入" }).click();
+  await expect(page.getByText("已导入 2 个规则组。")).toBeVisible();
+  await expect(page.getByRole("button", { name: /导入后的工作组/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /戒断节制/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /晚安守护/ })).toBeVisible();
+});
+
 test("popup renders English status and stats labels", async ({ page }) => {
   await mockActiveTabUrl(page, "https://127.0.0.1/video");
   const ruleGroup = await buildActiveRuleGroup(page);
@@ -528,6 +582,38 @@ async function seedLanguage(page: import("@playwright/test").Page, languagePrefe
     },
     { key: SETTINGS_KEY, preference: languagePreference }
   );
+}
+
+function staticRuleGroup(id: string, name: string): unknown {
+  return {
+    id,
+    name,
+    enabled: true,
+    schedule: { enabled: true, startTime: "09:00", endTime: "18:00", days: [1, 2, 3, 4, 5] },
+    sites: [{ id: `${id}-site`, host: `${id}.example.com`, createdAt: "2026-06-27T00:00:00.000Z" }],
+    commitment: "先完成重要的事。",
+    blockPage: {
+      version: 1,
+      title: "现在是限制时间",
+      description: "先离开这个网站。",
+      primaryActionLabel: "关闭页面",
+      primaryAction: {
+        type: "close",
+        externalUrl: "",
+        handoffTitle: "下一步",
+        handoffHtml: ""
+      },
+      tone: "focus",
+      customHtmlEnabled: false,
+      customHtml: ""
+    },
+    reminderMinutes: 15,
+    blockMode: "standard",
+    unlockMinutes: 10,
+    maxUnlocksPerSession: 3,
+    recordUnlockReason: true,
+    createdAt: "2026-06-27T00:00:00.000Z"
+  };
 }
 
 async function mockActiveTabUrl(page: import("@playwright/test").Page, url: string): Promise<void> {
