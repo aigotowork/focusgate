@@ -6,13 +6,28 @@ import {
   isScheduleActive,
   parseClockTime
 } from "../src/shared/time";
-import type { SleepSchedule } from "../src/shared/types";
+import type { RuleGroup, SleepSchedule } from "../src/shared/types";
 
 const schedule: SleepSchedule = {
   enabled: true,
   startTime: "23:00",
   endTime: "07:00",
   days: [1, 2, 3, 4, 5]
+};
+
+const group: RuleGroup = {
+  id: "focus",
+  name: "工作时间专注",
+  enabled: true,
+  schedule,
+  sites: [],
+  commitment: "先把重要的事做完。",
+  reminderMinutes: 30,
+  blockMode: "standard",
+  unlockMinutes: 10,
+  maxUnlocksPerSession: 3,
+  recordUnlockReason: true,
+  createdAt: ""
 };
 
 describe("sleep schedule", () => {
@@ -42,8 +57,9 @@ describe("sleep schedule", () => {
   });
 
   it("does not remind twice in the same sleep session", () => {
-    const decision = evaluateReminder(schedule, 30, ["2026-06-22"], new Date("2026-06-22T22:45:00"));
+    const decision = evaluateReminder(group, ["focus:2026-06-22"], new Date("2026-06-22T22:45:00"));
     expect(decision.shouldRemind).toBe(false);
     expect(decision.reason).toBe("already_reminded");
+    expect(decision.ruleGroupId).toBe("focus");
   });
 });

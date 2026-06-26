@@ -1,4 +1,4 @@
-import type { AccessDecision, AppSettings, GuardEvent, SiteRule, UnlockDecision } from "./types";
+import type { AccessDecision, AppSettings, BlockMode, GuardEvent, RuleGroup, SiteRule, UnlockDecision } from "./types";
 import { getSleepSessionId, isScheduleActive } from "./time";
 
 export function extractHostnameFromUrl(value: string): string | undefined {
@@ -56,50 +56,93 @@ export function evaluateAccess(url: string, settings: AppSettings, date = new Da
     return { allowed: true, reason: "not_http" };
   }
 
-  const sessionId = getSleepSessionId(settings.schedule, date);
-
-  if (!settings.schedule.enabled) {
-    return { allowed: true, reason: "disabled", host, sessionId };
-  }
-
   if (settings.pauseUntil && new Date(settings.pauseUntil).getTime() > date.getTime()) {
-    return { allowed: true, reason: "paused", host, sessionId };
+    return { allowed: true, reason: "paused", host };
   }
 
-  if (!isScheduleActive(settings.schedule, date)) {
-    return { allowed: true, reason: "outside_schedule", host, sessionId };
+  const activeGroups = settings.ruleGroups.filter((group) => group.enabled && group.schedule.enabled);
+  if (activeGroups.length === 0) {
+    return { allowed: true, reason: "disabled", host };
   }
 
-  const unlock = settings.unlocks.find(
-    (session) => matchesSiteRule(host, { id: session.host, host: session.host, createdAt: session.expiresAt }) &&
-      new Date(session.expiresAt).getTime() > date.getTime()
+  const matchingGroups = activeGroups.filter(
+    (group) => isScheduleActive(group.schedule, date) && group.sites.some((rule) => matchesSiteRule(host, rule))
   );
-  if (unlock) {
-    return { allowed: true, reason: "unlocked", host, sessionId };
+  if (matchingGroups.length === 0) {
+    const hasHostRule = activeGroups.some((group) => group.sites.some((rule) => matchesSiteRule(host, rule)));
+    return { allowed: true, reason: hasHostRule ? "outside_schedule" : "not_listed", host };
   }
 
-  const matchedRule = settings.sites.find((rule) => matchesSiteRule(host, rule));
-  if (!matchedRule) {
-    return { allowed: true, reason: "not_listed", host, sessionId };
+  const blockedGroups = matchingGroups.filter((group) => !hasActiveUnlock(settings, group, host, date));
+  if (blockedGroups.length === 0) {
+    const group = chooseRuleGroup(matchingGroups);
+    return {
+      allowed: true,
+      reason: "unlocked",
+      host,
+      sessionId: getSleepSessionId(group.schedule, date),
+      ruleGroupId: group.id,
+      ruleGroupName: group.name,
+      blockMode: group.blockMode
+    };
   }
 
-  return { allowed: false, reason: "blocked", host, sessionId };
+  const group = chooseRuleGroup(blockedGroups);
+  return {
+    allowed: false,
+    reason: "blocked",
+    host,
+    sessionId: getSleepSessionId(group.schedule, date),
+    ruleGroupId: group.id,
+    ruleGroupName: group.name,
+    blockMode: group.blockMode
+  };
 }
 
 export function evaluateUnlockLimit(
-  settings: AppSettings,
+  group: RuleGroup,
   events: GuardEvent[],
   date = new Date()
 ): UnlockDecision {
-  const sessionId = getSleepSessionId(settings.schedule, date);
-  const used = events.filter((event) => event.type === "unlocked" && event.sessionId === sessionId).length;
-  const limit = settings.maxUnlocksPerNight;
+  const sessionId = getSleepSessionId(group.schedule, date);
+  const used = events.filter(
+    (event) => event.type === "unlocked" && event.sessionId === sessionId && event.ruleGroupId === group.id
+  ).length;
+  const limit = group.maxUnlocksPerSession;
 
   return {
     allowed: limit <= 0 || used < limit,
     reason: limit <= 0 || used < limit ? "allowed" : "limit_reached",
     used,
     limit,
-    sessionId
+    sessionId,
+    ruleGroupId: group.id
   };
+}
+
+export function getRuleGroupById(settings: AppSettings, id: string | undefined): RuleGroup | undefined {
+  return settings.ruleGroups.find((group) => group.id === id);
+}
+
+export function chooseRuleGroup(groups: RuleGroup[]): RuleGroup {
+  return [...groups].sort((a, b) => modeRank(b.blockMode) - modeRank(a.blockMode))[0];
+}
+
+function hasActiveUnlock(settings: AppSettings, group: RuleGroup, host: string, date: Date): boolean {
+  return settings.unlocks.some(
+    (session) =>
+      session.ruleGroupId === group.id &&
+      matchesSiteRule(host, { id: session.host, host: session.host, createdAt: session.expiresAt }) &&
+      new Date(session.expiresAt).getTime() > date.getTime()
+  );
+}
+
+function modeRank(mode: BlockMode): number {
+  if (mode === "strict") {
+    return 3;
+  }
+  if (mode === "standard") {
+    return 2;
+  }
+  return 1;
 }

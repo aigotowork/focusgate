@@ -15,7 +15,23 @@ export interface SiteRule {
   createdAt: string;
 }
 
+export interface RuleGroup {
+  id: string;
+  name: string;
+  enabled: boolean;
+  schedule: SleepSchedule;
+  sites: SiteRule[];
+  commitment: string;
+  reminderMinutes: number;
+  blockMode: BlockMode;
+  unlockMinutes: number;
+  maxUnlocksPerSession: number;
+  recordUnlockReason: boolean;
+  createdAt: string;
+}
+
 export interface UnlockSession {
+  ruleGroupId: string;
   host: string;
   unlockedAt: string;
   expiresAt: string;
@@ -26,15 +42,8 @@ export interface UnlockSession {
 }
 
 export interface AppSettings {
-  schedule: SleepSchedule;
-  sites: SiteRule[];
+  ruleGroups: RuleGroup[];
   unlocks: UnlockSession[];
-  commitment: string;
-  unlockMinutes: number;
-  reminderMinutes: number;
-  blockMode: BlockMode;
-  maxUnlocksPerNight: number;
-  recordUnlockReason: boolean;
   onboardingCompleted: boolean;
   remindedSessionIds: string[];
   pauseUntil?: string;
@@ -46,6 +55,8 @@ export interface GuardEvent {
   host: string;
   createdAt: string;
   sessionId?: string;
+  ruleGroupId?: string;
+  ruleGroupName?: string;
   reason?: UnlockReason;
 }
 
@@ -62,12 +73,18 @@ export interface AccessDecision {
     | "blocked";
   host?: string;
   sessionId?: string;
+  ruleGroupId?: string;
+  ruleGroupName?: string;
+  blockMode?: BlockMode;
 }
 
 export interface ReminderDecision {
   shouldRemind: boolean;
   reason: "disabled" | "outside_window" | "already_reminded" | "ready";
   sessionId?: string;
+  ruleGroupId?: string;
+  ruleGroupName?: string;
+  reminderMinutes?: number;
 }
 
 export interface UnlockDecision {
@@ -76,6 +93,7 @@ export interface UnlockDecision {
   used: number;
   limit: number;
   sessionId: string;
+  ruleGroupId: string;
 }
 
 export interface DailyStats {

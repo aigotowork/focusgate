@@ -15,25 +15,28 @@ describe("stats summary", () => {
         type: "blocked",
         host: "youtube.com",
         createdAt: localDate(2026, 6, 22, 23, 10).toISOString(),
-        sessionId: "2026-06-22"
+        sessionId: "2026-06-22",
+        ruleGroupId: "goodnight-boundary"
       },
       {
         id: "2",
         type: "blocked",
         host: "youtube.com",
         createdAt: localDate(2026, 6, 23, 0, 10).toISOString(),
-        sessionId: "2026-06-22"
+        sessionId: "2026-06-22",
+        ruleGroupId: "goodnight-boundary"
       },
       {
         id: "3",
         type: "unlocked",
         host: "youtube.com",
         createdAt: localDate(2026, 6, 23, 0, 20).toISOString(),
-        sessionId: "2026-06-22"
+        sessionId: "2026-06-22",
+        ruleGroupId: "goodnight-boundary"
       }
     ];
 
-    const summary = buildStatsSummary(events, DEFAULT_SETTINGS.schedule, localDate(2026, 6, 23, 0, 30));
+    const summary = buildStatsSummary(events, DEFAULT_SETTINGS.ruleGroups[0], localDate(2026, 6, 23, 0, 30));
 
     expect(summary.todayBlocked).toBe(1);
     expect(summary.todayUnlocked).toBe(1);

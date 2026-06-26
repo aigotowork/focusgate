@@ -47,29 +47,43 @@ async function handleNavigation(tabId: number, url: string): Promise<void> {
     return;
   }
 
-  await recordGuardEvent({ type: "blocked", host: decision.host, sessionId: decision.sessionId });
+  await recordGuardEvent({
+    type: "blocked",
+    host: decision.host,
+    sessionId: decision.sessionId,
+    ruleGroupId: decision.ruleGroupId,
+    ruleGroupName: decision.ruleGroupName
+  });
   const blockUrl = chrome.runtime.getURL(
-    `block.html?site=${encodeURIComponent(decision.host)}&target=${encodeURIComponent(url)}`
+    `block.html?site=${encodeURIComponent(decision.host)}&group=${encodeURIComponent(decision.ruleGroupId ?? "")}&target=${encodeURIComponent(url)}`
   );
   await chrome.tabs.update(tabId, { url: blockUrl });
 }
 
 async function checkReminder(): Promise<void> {
   const settings = await ensureDefaultSettings();
-  const decision = evaluateReminder(settings.schedule, settings.reminderMinutes, settings.remindedSessionIds);
+  for (const group of settings.ruleGroups) {
+    const decision = evaluateReminder(group, settings.remindedSessionIds);
 
-  if (!decision.shouldRemind || !decision.sessionId) {
-    return;
+    if (!decision.shouldRemind || !decision.sessionId || !decision.ruleGroupId) {
+      continue;
+    }
+
+    await chrome.notifications.create(`goodnight-reminder-${decision.ruleGroupId}-${decision.sessionId}`, {
+      type: "basic",
+      iconUrl: chrome.runtime.getURL("icon.svg"),
+      title: `${decision.ruleGroupName}即将开启`,
+      message: `${decision.reminderMinutes} 分钟后进入限制时间。现在可以收尾，准备切换状态了。`
+    });
+    await markSessionReminded(decision.ruleGroupId, decision.sessionId);
+    await recordGuardEvent({
+      type: "reminded",
+      host: "*",
+      sessionId: decision.sessionId,
+      ruleGroupId: decision.ruleGroupId,
+      ruleGroupName: decision.ruleGroupName
+    });
   }
-
-  await chrome.notifications.create(`goodnight-reminder-${decision.sessionId}`, {
-    type: "basic",
-    iconUrl: chrome.runtime.getURL("icon.svg"),
-    title: "晚安边界即将开启",
-    message: `${settings.reminderMinutes} 分钟后进入晚安时间。现在可以收尾，准备休息了。`
-  });
-  await markSessionReminded(decision.sessionId);
-  await recordGuardEvent({ type: "reminded", host: "*", sessionId: decision.sessionId });
 }
 
 async function cleanupUnlocks(): Promise<void> {

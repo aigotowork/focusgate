@@ -2,11 +2,11 @@
 
 ## Product Shape
 
-GoodNight Guard is a Manifest V3 browser extension for Chrome and Edge. The MVP focuses on local bedtime enforcement: users define a sleep schedule and a list of distracting domains, then the extension reminds before bedtime and redirects restricted navigation to a calm block page during the active sleep window.
+GoodNight Guard is a Manifest V3 browser extension for Chrome and Edge. The MVP now uses rule groups: users can define separate blocking contexts such as bedtime boundaries and work-time focus, each with its own schedule, sites, commitment, reminder, and unlock policy.
 
 ## Runtime Strategy
 
-The first implementation uses `chrome.webNavigation.onBeforeNavigate` plus `chrome.tabs.update` instead of legacy blocking `webRequest`. This keeps the runtime simple for MVP validation and avoids long-lived service worker assumptions. The service worker initializes defaults, opens onboarding when needed, evaluates top-frame navigation, records domain-level events, redirects to `block.html`, sends reminder notifications, and periodically removes expired unlock sessions.
+The implementation uses `chrome.webNavigation.onBeforeNavigate` plus `chrome.tabs.update` instead of legacy blocking `webRequest`. The service worker initializes defaults, opens onboarding when needed, evaluates top-frame navigation across all enabled rule groups, records domain-level events with rule group attribution, redirects to `block.html`, sends reminder notifications, and periodically removes expired unlock sessions.
 
 Future stricter blocking can add `declarativeNetRequest` rules once the rule model stabilizes. Do not rely on MV3 service worker memory staying alive; use `chrome.alarms` for reminder and cleanup work.
 
@@ -28,15 +28,20 @@ Keep permissions minimal. Do not record page titles, full history, or page conte
 
 - `SleepSchedule`: enabled state, start/end times, and active weekdays.
 - `SiteRule`: normalized host rules such as `youtube.com`.
-- `UnlockSession`: temporary per-host bypass with timestamps, reason, mode, duration, and sleep session id.
-- `GuardEvent`: local domain-level events for stats, reminders, pauses, and unlock reasons.
+- `RuleGroup`: complete blocking configuration for a context such as `晚安边界` or `工作时间专注`.
+- `UnlockSession`: temporary per-host bypass with rule group id, timestamps, reason, mode, duration, and session id.
+- `GuardEvent`: local domain-level events for stats, reminders, pauses, unlock reasons, and rule group attribution.
 - `StatsSummary`: derived counts for today, tonight, seven-day history, top blocked hosts, and latest block time.
 
-Storage is local-first through `src/shared/storage.ts`, with a `localStorage` fallback for Vite UI development.
+Storage is local-first through `src/shared/storage.ts`, with a `localStorage` fallback for Vite UI development. Legacy single-rule settings are migrated into the default `晚安边界` rule group.
+
+## Rule Resolution
+
+If multiple rule groups match the same host at the same time, the strictest group wins: `strict > standard > gentle`. Unlock sessions are scoped to one rule group and host, so unlocking a site in one group does not bypass another matching group.
 
 ## Module Boundaries
 
-- `src/shared/`: pure rules and storage helpers. Keep schedule, domain, unlock, and stats logic testable here.
+- `src/shared/`: pure rules and storage helpers. Keep rule group resolution, schedule, domain, unlock, migration, and stats logic testable here.
 - `src/background/`: MV3 runtime wiring only.
 - `src/popup/`, `src/options/`, `src/block/`: independent React entry points.
 - `tests/`: deterministic tests for the shared rule layer.

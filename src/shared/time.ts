@@ -1,4 +1,4 @@
-import type { ReminderDecision, SleepSchedule } from "./types";
+import type { ReminderDecision, RuleGroup, SleepSchedule } from "./types";
 
 export function parseClockTime(value: string): number {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
@@ -73,25 +73,39 @@ export function isReminderWindowActive(schedule: SleepSchedule, reminderMinutes:
 }
 
 export function evaluateReminder(
-  schedule: SleepSchedule,
-  reminderMinutes: number,
+  group: RuleGroup,
   remindedSessionIds: string[],
   date = new Date()
 ): ReminderDecision {
-  if (!schedule.enabled) {
+  if (!group.enabled || !group.schedule.enabled) {
     return { shouldRemind: false, reason: "disabled" };
   }
 
-  if (!isReminderWindowActive(schedule, reminderMinutes, date)) {
+  if (!isReminderWindowActive(group.schedule, group.reminderMinutes, date)) {
     return { shouldRemind: false, reason: "outside_window" };
   }
 
-  const sessionId = getSleepSessionId(schedule, date);
-  if (remindedSessionIds.includes(sessionId)) {
-    return { shouldRemind: false, reason: "already_reminded", sessionId };
+  const sessionId = getSleepSessionId(group.schedule, date);
+  const reminderKey = `${group.id}:${sessionId}`;
+  if (remindedSessionIds.includes(reminderKey)) {
+    return {
+      shouldRemind: false,
+      reason: "already_reminded",
+      sessionId,
+      ruleGroupId: group.id,
+      ruleGroupName: group.name,
+      reminderMinutes: group.reminderMinutes
+    };
   }
 
-  return { shouldRemind: true, reason: "ready", sessionId };
+  return {
+    shouldRemind: true,
+    reason: "ready",
+    sessionId,
+    ruleGroupId: group.id,
+    ruleGroupName: group.name,
+    reminderMinutes: group.reminderMinutes
+  };
 }
 
 export function formatDuration(ms: number): string {

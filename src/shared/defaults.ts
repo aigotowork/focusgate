@@ -1,8 +1,12 @@
-import type { AppSettings } from "./types";
+import type { AppSettings, RuleGroup } from "./types";
 
 export const DEFAULT_COMMITMENT = "明天早上的我，会感谢现在睡觉的我。";
+export const DEFAULT_RULE_GROUP_ID = "goodnight-boundary";
 
-export const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_RULE_GROUP: RuleGroup = {
+  id: DEFAULT_RULE_GROUP_ID,
+  name: "晚安边界",
+  enabled: true,
   schedule: {
     enabled: true,
     startTime: "23:00",
@@ -14,13 +18,18 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { id: "bilibili-com", host: "bilibili.com", createdAt: new Date(0).toISOString() },
     { id: "reddit-com", host: "reddit.com", createdAt: new Date(0).toISOString() }
   ],
-  unlocks: [],
   commitment: DEFAULT_COMMITMENT,
-  unlockMinutes: 10,
   reminderMinutes: 30,
   blockMode: "standard",
-  maxUnlocksPerNight: 3,
+  unlockMinutes: 10,
+  maxUnlocksPerSession: 3,
   recordUnlockReason: true,
+  createdAt: new Date(0).toISOString()
+};
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  ruleGroups: [DEFAULT_RULE_GROUP],
+  unlocks: [],
   onboardingCompleted: false,
   remindedSessionIds: []
 };

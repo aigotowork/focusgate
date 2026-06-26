@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import { AlertCircle, Check, Moon, ShieldAlert, Unlock } from "lucide-react";
 import "../styles/global.css";
 import { addUnlockSession, getAppSettings, getGuardEvents, recordGuardEvent } from "../shared/storage";
-import { evaluateUnlockLimit } from "../shared/sites";
-import type { AppSettings, GuardEvent, UnlockReason } from "../shared/types";
+import { evaluateUnlockLimit, getRuleGroupById } from "../shared/sites";
+import type { AppSettings, GuardEvent, RuleGroup, UnlockReason } from "../shared/types";
 
 const CONFIRM_TEXT = "我知道熬夜不好，但我选择解锁";
 
@@ -19,6 +19,8 @@ function BlockApp(): JSX.Element {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const site = params.get("site") ?? "这个网站";
   const target = params.get("target");
+  const ruleGroupId = params.get("group") ?? undefined;
+  const activeGroup = settings ? getRuleGroupById(settings, ruleGroupId) ?? settings.ruleGroups[0] : undefined;
 
   useEffect(() => {
     void Promise.all([getAppSettings(), getGuardEvents()]).then(([nextSettings, nextEvents]) => {
@@ -42,7 +44,7 @@ function BlockApp(): JSX.Element {
   }, [countdown, unlockStep]);
 
   function startUnlock(): void {
-    if (settings && !evaluateUnlockLimit(settings, events).allowed) {
+    if (activeGroup && !evaluateUnlockLimit(activeGroup, events).allowed) {
       setUnlockStep(2);
       return;
     }
@@ -51,30 +53,33 @@ function BlockApp(): JSX.Element {
   }
 
   async function confirmUnlock(): Promise<void> {
-    if (!settings || confirmation.trim() !== CONFIRM_TEXT) {
+    if (!settings || !activeGroup || confirmation.trim() !== CONFIRM_TEXT) {
       return;
     }
 
-    const unlockLimit = evaluateUnlockLimit(settings, events);
+    const unlockLimit = evaluateUnlockLimit(activeGroup, events);
     if (!unlockLimit.allowed) {
       return;
     }
 
     const now = new Date();
     await addUnlockSession({
+      ruleGroupId: activeGroup.id,
       host: site,
       unlockedAt: now.toISOString(),
-      expiresAt: new Date(now.getTime() + settings.unlockMinutes * 60000).toISOString(),
-      durationMinutes: settings.unlockMinutes,
-      reason: settings.recordUnlockReason ? reason : undefined,
-      mode: settings.blockMode,
+      expiresAt: new Date(now.getTime() + activeGroup.unlockMinutes * 60000).toISOString(),
+      durationMinutes: activeGroup.unlockMinutes,
+      reason: activeGroup.recordUnlockReason ? reason : undefined,
+      mode: activeGroup.blockMode,
       sessionId: unlockLimit.sessionId
     });
     await recordGuardEvent({
       type: "unlocked",
       host: site,
       sessionId: unlockLimit.sessionId,
-      reason: settings.recordUnlockReason ? reason : undefined
+      ruleGroupId: activeGroup.id,
+      ruleGroupName: activeGroup.name,
+      reason: activeGroup.recordUnlockReason ? reason : undefined
     });
 
     if (target) {
@@ -92,7 +97,7 @@ function BlockApp(): JSX.Element {
           <Moon className="h-11 w-11 text-indigo-300" />
         </div>
 
-        <p className="mb-2 text-sm font-medium text-indigo-300">GoodNight Guard</p>
+        <p className="mb-2 text-sm font-medium text-indigo-300">{activeGroup?.name ?? "GoodNight Guard"}</p>
         <h1 className="text-4xl font-bold tracking-normal text-white sm:text-5xl">现在是晚安时间</h1>
         <p className="mt-3 text-xl text-slate-400">{new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</p>
 
@@ -104,7 +109,7 @@ function BlockApp(): JSX.Element {
 
           <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 text-center">
             <p className="text-sm text-slate-500">这是白天的你为今晚设置的边界：</p>
-            <p className="mt-2 text-lg font-medium text-indigo-100">“{settings?.commitment ?? "明天早上的我，会感谢现在睡觉的我。"}”</p>
+            <p className="mt-2 text-lg font-medium text-indigo-100">“{activeGroup?.commitment ?? "明天早上的我，会感谢现在睡觉的我。"}”</p>
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -135,7 +140,7 @@ function BlockApp(): JSX.Element {
                 onClick={startUnlock}
               >
                 <Unlock className="h-4 w-4" />
-                {unlockLabel(settings, events)}
+                {unlockLabel(activeGroup, events)}
               </button>
             </div>
           )}
@@ -149,12 +154,12 @@ function BlockApp(): JSX.Element {
 
           {unlockStep === 2 && (
             <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 text-left">
-              {settings && !evaluateUnlockLimit(settings, events).allowed && (
+              {activeGroup && !evaluateUnlockLimit(activeGroup, events).allowed && (
                 <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-200">
                   今晚的临时解锁次数已经用完。建议现在关掉网页，让这条边界继续生效。
                 </div>
               )}
-              {settings?.recordUnlockReason && (
+              {activeGroup?.recordUnlockReason && (
                 <label className="mb-4 block">
                   <span className="mb-2 block text-sm font-medium text-slate-300">解锁原因</span>
                   <select
@@ -188,7 +193,7 @@ function BlockApp(): JSX.Element {
                 </button>
                 <button
                   className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 font-medium text-rose-200 transition-colors hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-40"
-                  disabled={confirmation.trim() !== CONFIRM_TEXT || Boolean(settings && !evaluateUnlockLimit(settings, events).allowed)}
+                  disabled={confirmation.trim() !== CONFIRM_TEXT || Boolean(activeGroup && !evaluateUnlockLimit(activeGroup, events).allowed)}
                   onClick={() => void confirmUnlock()}
                 >
                   确认解锁
@@ -202,18 +207,18 @@ function BlockApp(): JSX.Element {
   );
 }
 
-function unlockLabel(settings: AppSettings | undefined, events: GuardEvent[]): string {
-  if (!settings) {
+function unlockLabel(group: RuleGroup | undefined, events: GuardEvent[]): string {
+  if (!group) {
     return "临时解锁 10 分钟";
   }
 
-  const decision = evaluateUnlockLimit(settings, events);
+  const decision = evaluateUnlockLimit(group, events);
   if (!decision.allowed) {
     return "今晚解锁次数已用完";
   }
 
   const remaining = decision.limit <= 0 ? "不限次数" : `剩余 ${decision.limit - decision.used} 次`;
-  return `临时解锁 ${settings.unlockMinutes} 分钟（${remaining}）`;
+  return `临时解锁 ${group.unlockMinutes} 分钟（${remaining}）`;
 }
 
 function InfoList({ icon, title, items }: { icon: React.ReactNode; title: string; items: string[] }): JSX.Element {
