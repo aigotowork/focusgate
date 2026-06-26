@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>隐私政策 - 守界 FocusGate</title>
     <meta name="description" content="守界 - FocusGate 浏览器扩展隐私政策。" />
+    <link rel="canonical" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="alternate" hreflang="en" href="https://aigotowork.github.io/focusgate/en/privacy/" />
+    <link rel="alternate" hreflang="fr" href="https://aigotowork.github.io/focusgate/fr/privacy/" />
+    <link rel="alternate" hreflang="x-default" href="https://aigotowork.github.io/focusgate/privacy/" />
     <link rel="icon" href="../assets/icon.svg" />
     <link rel="stylesheet" href="../styles.css" />
+    <script src="../language.js" data-route="privacy" data-root="../" data-autodetect="true"></script>
   </head>
   <body>
     <div class="page">
@@ -18,10 +24,17 @@
             <span>隐私政策</span>
           </span>
         </a>
-        <nav class="nav" aria-label="站点导航">
-          <a href="../">首页</a>
-          <a href="../support/">支持</a>
-        </nav>
+        <div class="topbar-actions">
+          <nav class="nav" aria-label="站点导航">
+            <a href="../">首页</a>
+            <a href="../support/">支持</a>
+          </nav>
+          <nav class="language-switcher" aria-label="语言版本">
+            <a href="./" data-lang="zh" lang="zh-CN" aria-current="true">中文</a>
+            <a href="../en/privacy/" data-lang="en" lang="en">EN</a>
+            <a href="../fr/privacy/" data-lang="fr" lang="fr">FR</a>
+          </nav>
+        </div>
       </header>
 
       <main class="shell content">
@@ -63,6 +76,12 @@
         </p>
         <p>这些数据主要留在你的设备上，用于判断网站是否应被限制、显示阻断页和提醒、执行临时解锁、自动过期恢复，以及在设置页展示本地统计。</p>
         <p>当前 MVP 不提供账号登录、云同步或远程分析服务。</p>
+
+        <h2>公开网站语言偏好</h2>
+        <p>
+          本公开网站会读取浏览器的 <code>navigator.languages</code> 或 <code>navigator.language</code>，用于在默认中文入口上选择中文、英文或法文页面。语言切换器可能会在本地浏览器的 <code>localStorage</code> 中保存一个语言代码，以便下次打开默认入口时沿用你的选择。
+        </p>
+        <p>这个偏好只用于公开网站的语言跳转，不会被本静态网站发送到开发者服务器，也不会改变扩展本身的数据处理方式。</p>
 
         <h2>数据是否会分享</h2>
         <p>

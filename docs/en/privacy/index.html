@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy - FocusGate / 守界</title>
+    <meta name="description" content="Privacy Policy for the FocusGate / 守界 browser extension." />
+    <link rel="canonical" href="https://aigotowork.github.io/focusgate/en/privacy/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="alternate" hreflang="en" href="https://aigotowork.github.io/focusgate/en/privacy/" />
+    <link rel="alternate" hreflang="fr" href="https://aigotowork.github.io/focusgate/fr/privacy/" />
+    <link rel="alternate" hreflang="x-default" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="icon" href="../../assets/icon.svg" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <script src="../../language.js" data-route="privacy" data-root="../../" data-locale="en"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="shell topbar">
+        <a class="brand" href="../" aria-label="FocusGate / 守界 home">
+          <img src="../../assets/icon.svg" alt="" />
+          <span>
+            <strong>FocusGate / 守界</strong>
+            <span>Privacy Policy</span>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <nav class="nav" aria-label="Site navigation">
+            <a href="../">Home</a>
+            <a href="../support/">Support</a>
+          </nav>
+          <nav class="language-switcher" aria-label="Language versions">
+            <a href="../../privacy/" data-lang="zh" lang="zh-CN">中文</a>
+            <a href="./" data-lang="en" lang="en" aria-current="true">EN</a>
+            <a href="../../fr/privacy/" data-lang="fr" lang="fr">FR</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="shell content">
+        <div class="eyebrow">Last updated: 2026-06-26</div>
+        <h1>Privacy Policy</h1>
+        <p>
+          FocusGate / 守界, referred to below as “FocusGate,” is a browser extension that limits distracting websites according to rule groups configured by the user. It helps users protect attention boundaries during sleep, work, study, and digital reset routines.
+        </p>
+        <p>
+          Privacy is part of the product boundary. The current MVP is local-first by default. It does not provide accounts, does not perform cloud sync, and does not sell user data.
+        </p>
+
+        <h2>Data We Process</h2>
+        <p>FocusGate stores the following data locally in your browser to provide the website-boundary features you configure:</p>
+        <ul>
+          <li>Rule group settings: group name, enabled state, schedule, active weekdays, restricted domains, commitment text, reminder timing, block strength, temporary unlock settings, and block-page display settings.</li>
+          <li>Website rules: domains you add to rule groups, such as <code>youtube.com</code>, <code>bilibili.com</code>, or other sites you choose.</li>
+          <li>Temporary unlock state: unlocked domain, related rule group, unlock start time, expiration time, duration, block mode, and optional unlock reason.</li>
+          <li>Local stats events: block, unlock, add-site, pause, reminder, clear, and similar events, including the related domain, rule group, and timestamp.</li>
+          <li>Custom display content: static block-page HTML, handoff-page HTML, title, description, and primary button configuration that you enter in settings.</li>
+        </ul>
+
+        <h2>Data We Do Not Collect</h2>
+        <p>The current version does not actively collect, upload, or sell the following information:</p>
+        <ul>
+          <li>Page body content.</li>
+          <li>Form input content.</li>
+          <li>Accounts, passwords, or identity credentials.</li>
+          <li>Page titles.</li>
+          <li>Complete browsing history.</li>
+          <li>Content from non-HTTP(S) browser pages.</li>
+          <li>Personal information unrelated to FocusGate features.</li>
+        </ul>
+        <p>FocusGate only needs to determine whether the current URL domain matches rule groups you configured. Stats events are domain-level by default, not page-content-level.</p>
+
+        <h2>How Data Is Stored</h2>
+        <p>
+          Current-version data is stored locally by default, including Chrome extension <code>chrome.storage.local</code> and a local-storage fallback used in development environments.
+        </p>
+        <p>This data primarily stays on your device and is used to decide whether a site should be limited, show block pages and reminders, run temporary unlocks and automatic expiry, and display local stats in settings.</p>
+        <p>The current MVP does not provide account login, cloud sync, or remote analytics services.</p>
+
+        <h2>Public Website Language Preference</h2>
+        <p>
+          This public website reads the browser’s <code>navigator.languages</code> or <code>navigator.language</code> values to choose Chinese, English, or French pages from the default Chinese entry point. The language switcher may save one language code in your browser’s <code>localStorage</code> so the default entry point can remember your choice.
+        </p>
+        <p>This preference is used only for public-site language routing. This static website does not send it to the developer’s server, and it does not change how the extension processes data.</p>
+
+        <h2>Data Sharing</h2>
+        <p>
+          The current version does not upload your rule groups, restricted domains, unlock reasons, stats events, or custom HTML to developer servers, and it does not sell them to advertisers, data brokers, or other third parties.
+        </p>
+        <p>
+          If a future version adds cloud sync, accounts, crash analysis, or cross-device features, this Privacy Policy should be updated first, and the product should clearly explain the new data use and user choices.
+        </p>
+        <p>FocusGate’s use of user data will comply with the Chrome Web Store User Data Policy, including Limited Use requirements. FocusGate will only use data to provide or improve the website-boundary features clearly described by the extension.</p>
+
+        <h2>Permission Use</h2>
+        <ul>
+          <li><code>storage</code>: saves rule groups, sites, unlock state, and local stats.</li>
+          <li><code>tabs</code>: reads or updates browser tabs so restricted sites can be redirected to the block page when rules match.</li>
+          <li><code>activeTab</code>: lets the popup identify the current tab’s domain and add the current site to a rule group.</li>
+          <li><code>webNavigation</code>: observes top-level page navigation to determine whether the visited site should be blocked.</li>
+          <li><code>alarms</code>: schedules reminders, block checks, and expired-unlock cleanup.</li>
+          <li><code>notifications</code>: shows system notifications shortly before a rule starts.</li>
+          <li><code>&lt;all_urls&gt;</code> host permission: checks domains on any user-configurable HTTP(S) website and shows the early reminder overlay.</li>
+        </ul>
+        <p>FocusGate does not use these permissions to read page body text, form inputs, account information, or page titles.</p>
+
+        <h2>User Control</h2>
+        <p>You can use the extension settings page to create, edit, enable, or delete rule groups, add or remove restricted domains, change reminders, block strength, and temporary unlock rules, clear local stats events, or turn off or uninstall the extension.</p>
+        <p>Data deletion after uninstall is affected by Chrome / Edge extension storage behavior. You can also clear local stats from the settings page before uninstalling.</p>
+
+        <h2>Children’s Privacy</h2>
+        <p>FocusGate is not designed specifically for children. The current version does not provide accounts and does not actively ask users to submit age, name, contact information, or other identifying information.</p>
+
+        <h2>Policy Changes</h2>
+        <p>If future versions materially change data handling, such as adding accounts, cloud sync, remote backup, telemetry analytics, or third-party services, we will update this Privacy Policy and explain the changes in an appropriate place.</p>
+
+        <h2>Contact</h2>
+        <p>For privacy questions, contact: <a href="mailto:long@aigotowork.work">long@aigotowork.work</a></p>
+        <p>Developer / publisher: aigotowork</p>
+      </main>
+
+      <footer class="shell footer">
+        <span>© 2026 aigotowork. FocusGate / 守界.</span>
+      </footer>
+    </div>
+  </body>
+</html>

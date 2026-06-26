@@ -8,8 +8,14 @@
       name="description"
       content="守界 - FocusGate 是一个本地优先的浏览器扩展，用规则组为睡眠、工作和戒断场景建立可执行的网站边界。"
     />
+    <link rel="canonical" href="https://aigotowork.github.io/focusgate/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://aigotowork.github.io/focusgate/" />
+    <link rel="alternate" hreflang="en" href="https://aigotowork.github.io/focusgate/en/" />
+    <link rel="alternate" hreflang="fr" href="https://aigotowork.github.io/focusgate/fr/" />
+    <link rel="alternate" hreflang="x-default" href="https://aigotowork.github.io/focusgate/" />
     <link rel="icon" href="./assets/icon.svg" />
     <link rel="stylesheet" href="./styles.css" />
+    <script src="./language.js" data-route="home" data-root="./" data-autodetect="true"></script>
   </head>
   <body>
     <div class="page">
@@ -21,10 +27,17 @@
             <span>该专注时，守住你的注意力边界。</span>
           </span>
         </a>
-        <nav class="nav" aria-label="站点导航">
-          <a href="./support/">支持</a>
-          <a href="./privacy/">隐私政策</a>
-        </nav>
+        <div class="topbar-actions">
+          <nav class="nav" aria-label="站点导航">
+            <a href="./support/">支持</a>
+            <a href="./privacy/">隐私政策</a>
+          </nav>
+          <nav class="language-switcher" aria-label="语言版本">
+            <a href="./" data-lang="zh" lang="zh-CN" aria-current="true">中文</a>
+            <a href="./en/" data-lang="en" lang="en">EN</a>
+            <a href="./fr/" data-lang="fr" lang="fr">FR</a>
+          </nav>
+        </div>
       </header>
 
       <main>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Politique de confidentialité - FocusGate / 守界</title>
+    <meta name="description" content="Politique de confidentialité de l’extension de navigateur FocusGate / 守界." />
+    <link rel="canonical" href="https://aigotowork.github.io/focusgate/fr/privacy/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="alternate" hreflang="en" href="https://aigotowork.github.io/focusgate/en/privacy/" />
+    <link rel="alternate" hreflang="fr" href="https://aigotowork.github.io/focusgate/fr/privacy/" />
+    <link rel="alternate" hreflang="x-default" href="https://aigotowork.github.io/focusgate/privacy/" />
+    <link rel="icon" href="../../assets/icon.svg" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <script src="../../language.js" data-route="privacy" data-root="../../" data-locale="fr"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="shell topbar">
+        <a class="brand" href="../" aria-label="Accueil FocusGate / 守界">
+          <img src="../../assets/icon.svg" alt="" />
+          <span>
+            <strong>FocusGate / 守界</strong>
+            <span>Politique de confidentialité</span>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <nav class="nav" aria-label="Navigation du site">
+            <a href="../">Accueil</a>
+            <a href="../support/">Assistance</a>
+          </nav>
+          <nav class="language-switcher" aria-label="Versions linguistiques">
+            <a href="../../privacy/" data-lang="zh" lang="zh-CN">中文</a>
+            <a href="../../en/privacy/" data-lang="en" lang="en">EN</a>
+            <a href="./" data-lang="fr" lang="fr" aria-current="true">FR</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="shell content">
+        <div class="eyebrow">Dernière mise à jour : 2026-06-26</div>
+        <h1>Politique de confidentialité</h1>
+        <p>
+          FocusGate / 守界, appelé ci-dessous « FocusGate », est une extension de navigateur qui limite les sites distrayants selon les groupes de règles configurés par l’utilisateur. Elle aide à protéger les limites d’attention pendant le sommeil, le travail, les études et les périodes de recul numérique.
+        </p>
+        <p>
+          La confidentialité fait partie de la limite du produit. Le MVP actuel fonctionne localement par défaut. Il ne propose pas de compte, n’effectue pas de synchronisation cloud et ne vend pas les données utilisateur.
+        </p>
+
+        <h2>Données que nous traitons</h2>
+        <p>FocusGate stocke les données suivantes localement dans votre navigateur afin de fournir les fonctions de limite de sites web que vous configurez :</p>
+        <ul>
+          <li>Paramètres des groupes de règles : nom du groupe, état activé, horaires, jours actifs, domaines restreints, texte d’engagement, délai de rappel, intensité de blocage, paramètres de déverrouillage temporaire et configuration d’affichage de la page de blocage.</li>
+          <li>Règles de sites web : domaines que vous ajoutez aux groupes de règles, par exemple <code>youtube.com</code>, <code>bilibili.com</code> ou d’autres sites choisis par vous.</li>
+          <li>État de déverrouillage temporaire : domaine déverrouillé, groupe de règles associé, heure de début, heure d’expiration, durée, mode de blocage et motif optionnel.</li>
+          <li>Événements statistiques locaux : blocage, déverrouillage, ajout de site, pause, rappel, effacement et événements similaires, avec le domaine, le groupe de règles et l’horodatage associés.</li>
+          <li>Contenu d’affichage personnalisé : HTML statique de page de blocage, HTML de page de transition, titre, description et configuration du bouton principal saisis dans les paramètres.</li>
+        </ul>
+
+        <h2>Données que nous ne collectons pas</h2>
+        <p>La version actuelle ne collecte pas activement, ne téléverse pas et ne vend pas les informations suivantes :</p>
+        <ul>
+          <li>Contenu textuel des pages.</li>
+          <li>Contenu des champs de formulaire.</li>
+          <li>Comptes, mots de passe ou identifiants.</li>
+          <li>Titres des pages.</li>
+          <li>Historique complet de navigation.</li>
+          <li>Contenu des pages de navigateur non HTTP(S).</li>
+          <li>Informations personnelles sans rapport avec les fonctions de FocusGate.</li>
+        </ul>
+        <p>FocusGate doit seulement déterminer si le domaine de l’URL actuelle correspond aux groupes de règles que vous avez configurés. Les événements statistiques sont par défaut au niveau du domaine, pas au niveau du contenu des pages.</p>
+
+        <h2>Stockage des données</h2>
+        <p>
+          Les données de la version actuelle sont stockées localement par défaut, notamment dans <code>chrome.storage.local</code> pour l’extension Chrome et dans un repli de stockage local utilisé en environnement de développement.
+        </p>
+        <p>Ces données restent principalement sur votre appareil et servent à déterminer si un site doit être limité, afficher les pages de blocage et les rappels, exécuter les déverrouillages temporaires et leur expiration automatique, ainsi qu’afficher les statistiques locales dans les paramètres.</p>
+        <p>Le MVP actuel ne propose pas de connexion à un compte, de synchronisation cloud ni de service d’analyse distant.</p>
+
+        <h2>Préférence de langue du site public</h2>
+        <p>
+          Ce site public lit les valeurs <code>navigator.languages</code> ou <code>navigator.language</code> du navigateur pour choisir les pages en chinois, anglais ou français depuis l’entrée chinoise par défaut. Le sélecteur de langue peut enregistrer un code de langue dans le <code>localStorage</code> de votre navigateur afin de mémoriser votre choix lors d’une prochaine ouverture de l’entrée par défaut.
+        </p>
+        <p>Cette préférence sert uniquement au routage linguistique du site public. Ce site statique ne l’envoie pas au serveur du développeur et elle ne modifie pas la façon dont l’extension traite les données.</p>
+
+        <h2>Partage des données</h2>
+        <p>
+          La version actuelle ne téléverse pas vos groupes de règles, domaines restreints, motifs de déverrouillage, événements statistiques ou HTML personnalisé vers les serveurs du développeur, et ne les vend pas à des annonceurs, courtiers en données ou autres tiers.
+        </p>
+        <p>
+          Si une version future ajoute la synchronisation cloud, les comptes, l’analyse de crash ou des fonctions multi-appareils, cette politique de confidentialité devra être mise à jour au préalable, et le produit devra expliquer clairement les nouveaux usages de données et les choix proposés aux utilisateurs.
+        </p>
+        <p>L’utilisation des données utilisateur par FocusGate respectera la Chrome Web Store User Data Policy, y compris les exigences Limited Use. FocusGate n’utilisera les données que pour fournir ou améliorer les fonctions de limite de sites web clairement décrites par l’extension.</p>
+
+        <h2>Utilisation des autorisations</h2>
+        <ul>
+          <li><code>storage</code> : enregistre les groupes de règles, sites, états de déverrouillage et statistiques locales.</li>
+          <li><code>tabs</code> : lit ou met à jour les onglets du navigateur afin de rediriger les sites restreints vers la page de blocage quand une règle correspond.</li>
+          <li><code>activeTab</code> : permet à la fenêtre de l’extension d’identifier le domaine de l’onglet actuel et d’ajouter le site actuel à un groupe de règles.</li>
+          <li><code>webNavigation</code> : observe la navigation de premier niveau pour déterminer si le site visité doit être bloqué.</li>
+          <li><code>alarms</code> : planifie les rappels, les vérifications de blocage et le nettoyage des déverrouillages expirés.</li>
+          <li><code>notifications</code> : affiche des notifications système peu avant le début d’une règle.</li>
+          <li>Autorisation d’hôte <code>&lt;all_urls&gt;</code> : vérifie les domaines sur tout site HTTP(S) configurable par l’utilisateur et affiche le rappel anticipé.</li>
+        </ul>
+        <p>FocusGate n’utilise pas ces autorisations pour lire le texte des pages, les champs de formulaire, les informations de compte ou les titres de page.</p>
+
+        <h2>Contrôle utilisateur</h2>
+        <p>Vous pouvez utiliser la page de paramètres de l’extension pour créer, modifier, activer ou supprimer des groupes de règles, ajouter ou retirer des domaines restreints, modifier les rappels, l’intensité de blocage et les règles de déverrouillage temporaire, effacer les statistiques locales, ou désactiver ou désinstaller l’extension.</p>
+        <p>La suppression des données après désinstallation dépend du fonctionnement du stockage des extensions Chrome / Edge. Vous pouvez aussi effacer les statistiques locales depuis la page de paramètres avant de désinstaller.</p>
+
+        <h2>Confidentialité des enfants</h2>
+        <p>FocusGate n’est pas conçu spécifiquement pour les enfants. La version actuelle ne propose pas de compte et ne demande pas activement aux utilisateurs de fournir leur âge, leur nom, leurs coordonnées ou d’autres informations d’identification.</p>
+
+        <h2>Modifications de cette politique</h2>
+        <p>Si des versions futures modifient substantiellement le traitement des données, par exemple en ajoutant des comptes, une synchronisation cloud, une sauvegarde distante, de la télémétrie ou des services tiers, nous mettrons à jour cette politique de confidentialité et expliquerons les changements à un endroit approprié.</p>
+
+        <h2>Contact</h2>
+        <p>Pour toute question relative à la confidentialité, contactez : <a href="mailto:long@aigotowork.work">long@aigotowork.work</a></p>
+        <p>Développeur / éditeur : aigotowork</p>
+      </main>
+
+      <footer class="shell footer">
+        <span>© 2026 aigotowork. FocusGate / 守界.</span>
+      </footer>
+    </div>
+  </body>
+</html>

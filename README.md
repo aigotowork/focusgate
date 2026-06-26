@@ -49,7 +49,7 @@ tests/           Vitest 单元测试
 tests/e2e/       Playwright 冒烟测试
 public/          manifest.json
 public/store/    Chrome Web Store 图片源文件和导出素材
-docs/            GitHub Pages 公开站点：首页、支持页、隐私政策
+docs/            GitHub Pages 公开站点：首页、支持页、隐私政策和多语言版本
 project-docs/    内部架构、上架清单、文案、截图流程和历史资料
 ```
 
@@ -68,11 +68,13 @@ Chrome Web Store 发布资料集中在 `project-docs/store/`：
 - `project-docs/store/permission-justification-draft.md`：权限用途说明。
 - `project-docs/store/screenshot-capture-runbook.md`：截图种子数据、场景和文件名。
 
-GitHub Pages 公开页面位于 `docs/`，仓库 Pages 发布源应设置为 `main` 分支的 `/docs` 文件夹。目标 URL：
+GitHub Pages 公开页面位于 `docs/`，仓库 Pages 发布源应设置为 `main` 分支的 `/docs` 文件夹。中文是默认版本；英文和法文版本分别位于 `/en/`、`/fr/`，默认中文入口会按浏览器语言或本地语言偏好跳转。目标 URL：
 
 - `https://aigotowork.github.io/focusgate/`
 - `https://aigotowork.github.io/focusgate/support/`
 - `https://aigotowork.github.io/focusgate/privacy/`
+- `https://aigotowork.github.io/focusgate/en/`
+- `https://aigotowork.github.io/focusgate/fr/`
 
 常用发布命令：
 
