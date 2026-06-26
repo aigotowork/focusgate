@@ -4,11 +4,14 @@
   "short_name": "GoodNight Guard",
   "version": "0.1.0",
   "description": "到点提醒睡觉，并在晚安时间阻断高刺激网站。",
-  "permissions": ["activeTab", "storage", "tabs", "webNavigation"],
+  "permissions": ["activeTab", "alarms", "notifications", "storage", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "晚安边界"
+  },
+  "icons": {
+    "128": "icon.svg"
   },
   "options_page": "options.html",
   "background": {

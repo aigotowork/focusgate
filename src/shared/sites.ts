@@ -1,5 +1,5 @@
-import type { AccessDecision, AppSettings, SiteRule } from "./types";
-import { isScheduleActive } from "./time";
+import type { AccessDecision, AppSettings, GuardEvent, SiteRule, UnlockDecision } from "./types";
+import { getSleepSessionId, isScheduleActive } from "./time";
 
 export function extractHostnameFromUrl(value: string): string | undefined {
   try {
@@ -47,21 +47,27 @@ export function createSiteRule(host: string): SiteRule | undefined {
 }
 
 export function evaluateAccess(url: string, settings: AppSettings, date = new Date()): AccessDecision {
+  if (url.startsWith("chrome-extension://") || url.startsWith("moz-extension://")) {
+    return { allowed: true, reason: "extension_page" };
+  }
+
   const host = extractHostnameFromUrl(url);
   if (!host) {
     return { allowed: true, reason: "not_http" };
   }
 
+  const sessionId = getSleepSessionId(settings.schedule, date);
+
   if (!settings.schedule.enabled) {
-    return { allowed: true, reason: "disabled", host };
+    return { allowed: true, reason: "disabled", host, sessionId };
   }
 
   if (settings.pauseUntil && new Date(settings.pauseUntil).getTime() > date.getTime()) {
-    return { allowed: true, reason: "paused", host };
+    return { allowed: true, reason: "paused", host, sessionId };
   }
 
   if (!isScheduleActive(settings.schedule, date)) {
-    return { allowed: true, reason: "outside_schedule", host };
+    return { allowed: true, reason: "outside_schedule", host, sessionId };
   }
 
   const unlock = settings.unlocks.find(
@@ -69,13 +75,31 @@ export function evaluateAccess(url: string, settings: AppSettings, date = new Da
       new Date(session.expiresAt).getTime() > date.getTime()
   );
   if (unlock) {
-    return { allowed: true, reason: "unlocked", host };
+    return { allowed: true, reason: "unlocked", host, sessionId };
   }
 
   const matchedRule = settings.sites.find((rule) => matchesSiteRule(host, rule));
   if (!matchedRule) {
-    return { allowed: true, reason: "not_listed", host };
+    return { allowed: true, reason: "not_listed", host, sessionId };
   }
 
-  return { allowed: false, reason: "blocked", host };
+  return { allowed: false, reason: "blocked", host, sessionId };
+}
+
+export function evaluateUnlockLimit(
+  settings: AppSettings,
+  events: GuardEvent[],
+  date = new Date()
+): UnlockDecision {
+  const sessionId = getSleepSessionId(settings.schedule, date);
+  const used = events.filter((event) => event.type === "unlocked" && event.sessionId === sessionId).length;
+  const limit = settings.maxUnlocksPerNight;
+
+  return {
+    allowed: limit <= 0 || used < limit,
+    reason: limit <= 0 || used < limit ? "allowed" : "limit_reached",
+    used,
+    limit,
+    sessionId
+  };
 }

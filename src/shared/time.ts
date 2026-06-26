@@ -1,4 +1,4 @@
-import type { SleepSchedule } from "./types";
+import type { ReminderDecision, SleepSchedule } from "./types";
 
 export function parseClockTime(value: string): number {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
@@ -44,6 +44,56 @@ export function isScheduleActive(schedule: SleepSchedule, date = new Date()): bo
   );
 }
 
+export function getSleepSessionId(schedule: SleepSchedule, date = new Date()): string {
+  const start = parseClockTime(schedule.startTime);
+  const end = parseClockTime(schedule.endTime);
+  const now = minutesSinceMidnight(date);
+  const sessionDate = new Date(date);
+
+  if (start > end && now < end) {
+    sessionDate.setDate(sessionDate.getDate() - 1);
+  }
+
+  return toLocalDateKey(sessionDate);
+}
+
+export function isReminderWindowActive(schedule: SleepSchedule, reminderMinutes: number, date = new Date()): boolean {
+  if (!schedule.enabled) {
+    return false;
+  }
+
+  const reminderStart = shiftClockMinutes(schedule.startTime, -Math.max(0, reminderMinutes));
+  const reminderSchedule: SleepSchedule = {
+    ...schedule,
+    startTime: reminderStart,
+    endTime: schedule.startTime
+  };
+
+  return isScheduleActive(reminderSchedule, date);
+}
+
+export function evaluateReminder(
+  schedule: SleepSchedule,
+  reminderMinutes: number,
+  remindedSessionIds: string[],
+  date = new Date()
+): ReminderDecision {
+  if (!schedule.enabled) {
+    return { shouldRemind: false, reason: "disabled" };
+  }
+
+  if (!isReminderWindowActive(schedule, reminderMinutes, date)) {
+    return { shouldRemind: false, reason: "outside_window" };
+  }
+
+  const sessionId = getSleepSessionId(schedule, date);
+  if (remindedSessionIds.includes(sessionId)) {
+    return { shouldRemind: false, reason: "already_reminded", sessionId };
+  }
+
+  return { shouldRemind: true, reason: "ready", sessionId };
+}
+
 export function formatDuration(ms: number): string {
   const totalMinutes = Math.max(0, Math.ceil(ms / 60000));
   const hours = Math.floor(totalMinutes / 60);
@@ -58,4 +108,18 @@ export function formatDuration(ms: number): string {
   }
 
   return `${hours} 小时 ${minutes} 分钟`;
+}
+
+export function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function shiftClockMinutes(value: string, deltaMinutes: number): string {
+  const shifted = (parseClockTime(value) + deltaMinutes + 1440) % 1440;
+  const hours = String(Math.floor(shifted / 60)).padStart(2, "0");
+  const minutes = String(shifted % 60).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }

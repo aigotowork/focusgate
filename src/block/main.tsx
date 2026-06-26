@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AlertCircle, Check, Moon, ShieldAlert, Unlock } from "lucide-react";
 import "../styles/global.css";
-import { addUnlockSession, getAppSettings, recordGuardEvent } from "../shared/storage";
-import type { AppSettings } from "../shared/types";
+import { addUnlockSession, getAppSettings, getGuardEvents, recordGuardEvent } from "../shared/storage";
+import { evaluateUnlockLimit } from "../shared/sites";
+import type { AppSettings, GuardEvent, UnlockReason } from "../shared/types";
 
 const CONFIRM_TEXT = "我知道熬夜不好，但我选择解锁";
 
@@ -12,13 +13,18 @@ function BlockApp(): JSX.Element {
   const [unlockStep, setUnlockStep] = useState<0 | 1 | 2>(0);
   const [countdown, setCountdown] = useState(10);
   const [confirmation, setConfirmation] = useState("");
+  const [reason, setReason] = useState<UnlockReason>("work");
+  const [events, setEvents] = useState<GuardEvent[]>([]);
 
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const site = params.get("site") ?? "这个网站";
   const target = params.get("target");
 
   useEffect(() => {
-    void getAppSettings().then(setSettings);
+    void Promise.all([getAppSettings(), getGuardEvents()]).then(([nextSettings, nextEvents]) => {
+      setSettings(nextSettings);
+      setEvents(nextEvents);
+    });
   }, []);
 
   useEffect(() => {
@@ -36,6 +42,10 @@ function BlockApp(): JSX.Element {
   }, [countdown, unlockStep]);
 
   function startUnlock(): void {
+    if (settings && !evaluateUnlockLimit(settings, events).allowed) {
+      setUnlockStep(2);
+      return;
+    }
     setCountdown(10);
     setUnlockStep(1);
   }
@@ -45,11 +55,27 @@ function BlockApp(): JSX.Element {
       return;
     }
 
+    const unlockLimit = evaluateUnlockLimit(settings, events);
+    if (!unlockLimit.allowed) {
+      return;
+    }
+
+    const now = new Date();
     await addUnlockSession({
       host: site,
-      expiresAt: new Date(Date.now() + settings.unlockMinutes * 60000).toISOString()
+      unlockedAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + settings.unlockMinutes * 60000).toISOString(),
+      durationMinutes: settings.unlockMinutes,
+      reason: settings.recordUnlockReason ? reason : undefined,
+      mode: settings.blockMode,
+      sessionId: unlockLimit.sessionId
     });
-    await recordGuardEvent({ type: "unlocked", host: site });
+    await recordGuardEvent({
+      type: "unlocked",
+      host: site,
+      sessionId: unlockLimit.sessionId,
+      reason: settings.recordUnlockReason ? reason : undefined
+    });
 
     if (target) {
       window.location.href = target;
@@ -109,7 +135,7 @@ function BlockApp(): JSX.Element {
                 onClick={startUnlock}
               >
                 <Unlock className="h-4 w-4" />
-                临时解锁 {settings?.unlockMinutes ?? 10} 分钟
+                {unlockLabel(settings, events)}
               </button>
             </div>
           )}
@@ -123,6 +149,26 @@ function BlockApp(): JSX.Element {
 
           {unlockStep === 2 && (
             <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 text-left">
+              {settings && !evaluateUnlockLimit(settings, events).allowed && (
+                <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-200">
+                  今晚的临时解锁次数已经用完。建议现在关掉网页，让这条边界继续生效。
+                </div>
+              )}
+              {settings?.recordUnlockReason && (
+                <label className="mb-4 block">
+                  <span className="mb-2 block text-sm font-medium text-slate-300">解锁原因</span>
+                  <select
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value as UnlockReason)}
+                  >
+                    <option value="work">工作需要</option>
+                    <option value="study">学习资料</option>
+                    <option value="urgent">紧急事项</option>
+                    <option value="other">其他原因</option>
+                  </select>
+                </label>
+              )}
               <p className="mb-3 text-sm text-slate-300">为了确认你真的需要解锁，请输入：</p>
               <p className="mb-4 select-all rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm font-medium text-indigo-200">
                 {CONFIRM_TEXT}
@@ -142,7 +188,7 @@ function BlockApp(): JSX.Element {
                 </button>
                 <button
                   className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 font-medium text-rose-200 transition-colors hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-40"
-                  disabled={confirmation.trim() !== CONFIRM_TEXT}
+                  disabled={confirmation.trim() !== CONFIRM_TEXT || Boolean(settings && !evaluateUnlockLimit(settings, events).allowed)}
                   onClick={() => void confirmUnlock()}
                 >
                   确认解锁
@@ -154,6 +200,20 @@ function BlockApp(): JSX.Element {
       </section>
     </main>
   );
+}
+
+function unlockLabel(settings: AppSettings | undefined, events: GuardEvent[]): string {
+  if (!settings) {
+    return "临时解锁 10 分钟";
+  }
+
+  const decision = evaluateUnlockLimit(settings, events);
+  if (!decision.allowed) {
+    return "今晚解锁次数已用完";
+  }
+
+  const remaining = decision.limit <= 0 ? "不限次数" : `剩余 ${decision.limit - decision.used} 次`;
+  return `临时解锁 ${settings.unlockMinutes} 分钟（${remaining}）`;
 }
 
 function InfoList({ icon, title, items }: { icon: React.ReactNode; title: string; items: string[] }): JSX.Element {

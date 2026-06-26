@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isScheduleActive, parseClockTime } from "../src/shared/time";
+import {
+  evaluateReminder,
+  getSleepSessionId,
+  isReminderWindowActive,
+  isScheduleActive,
+  parseClockTime
+} from "../src/shared/time";
 import type { SleepSchedule } from "../src/shared/types";
 
 const schedule: SleepSchedule = {
@@ -24,5 +30,20 @@ describe("sleep schedule", () => {
 
   it("is inactive outside the configured window", () => {
     expect(isScheduleActive(schedule, new Date("2026-06-23T12:00:00"))).toBe(false);
+  });
+
+  it("uses the previous date as the session id after midnight", () => {
+    expect(getSleepSessionId(schedule, new Date("2026-06-23T02:00:00"))).toBe("2026-06-22");
+  });
+
+  it("detects the reminder window before bedtime", () => {
+    expect(isReminderWindowActive(schedule, 30, new Date("2026-06-22T22:45:00"))).toBe(true);
+    expect(isReminderWindowActive(schedule, 30, new Date("2026-06-22T22:15:00"))).toBe(false);
+  });
+
+  it("does not remind twice in the same sleep session", () => {
+    const decision = evaluateReminder(schedule, 30, ["2026-06-22"], new Date("2026-06-22T22:45:00"));
+    expect(decision.shouldRemind).toBe(false);
+    expect(decision.reason).toBe("already_reminded");
   });
 });

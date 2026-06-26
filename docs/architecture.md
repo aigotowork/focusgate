@@ -2,13 +2,13 @@
 
 ## Product Shape
 
-GoodNight Guard is a Manifest V3 browser extension for Chrome and Edge. The MVP focuses on local bedtime enforcement: users define a sleep schedule and a list of distracting domains, then the extension redirects restricted navigation to a calm block page during the active sleep window.
+GoodNight Guard is a Manifest V3 browser extension for Chrome and Edge. The MVP focuses on local bedtime enforcement: users define a sleep schedule and a list of distracting domains, then the extension reminds before bedtime and redirects restricted navigation to a calm block page during the active sleep window.
 
 ## Runtime Strategy
 
-The first implementation uses `chrome.webNavigation.onBeforeNavigate` plus `chrome.tabs.update` instead of legacy blocking `webRequest`. This keeps the runtime simple for MVP validation and avoids long-lived service worker assumptions. The service worker only initializes defaults, evaluates top-frame navigation, records a domain-level event, and redirects to `block.html`.
+The first implementation uses `chrome.webNavigation.onBeforeNavigate` plus `chrome.tabs.update` instead of legacy blocking `webRequest`. This keeps the runtime simple for MVP validation and avoids long-lived service worker assumptions. The service worker initializes defaults, opens onboarding when needed, evaluates top-frame navigation, records domain-level events, redirects to `block.html`, sends reminder notifications, and periodically removes expired unlock sessions.
 
-Future stricter blocking can add `declarativeNetRequest` rules once the rule model stabilizes. If reminder notifications are added, use `chrome.alarms`; do not rely on MV3 service worker memory staying alive.
+Future stricter blocking can add `declarativeNetRequest` rules once the rule model stabilizes. Do not rely on MV3 service worker memory staying alive; use `chrome.alarms` for reminder and cleanup work.
 
 ## Permissions
 
@@ -16,6 +16,8 @@ Future stricter blocking can add `declarativeNetRequest` rules once the rule mod
 - `tabs`: read/update active tabs and redirect blocked navigation.
 - `activeTab`: inspect the current page from the popup.
 - `webNavigation`: observe top-frame navigation for blocking decisions.
+- `alarms`: schedule reminder checks and expired-unlock cleanup.
+- `notifications`: show the one-per-session bedtime reminder.
 - `<all_urls>` host access: evaluate user-defined restricted domains across sites.
 
 Keep permissions minimal. Do not record page titles, full history, or page content.
@@ -26,8 +28,9 @@ Keep permissions minimal. Do not record page titles, full history, or page conte
 
 - `SleepSchedule`: enabled state, start/end times, and active weekdays.
 - `SiteRule`: normalized host rules such as `youtube.com`.
-- `UnlockSession`: temporary per-host bypass with an expiration timestamp.
-- `GuardEvent`: local domain-level events for basic stats.
+- `UnlockSession`: temporary per-host bypass with timestamps, reason, mode, duration, and sleep session id.
+- `GuardEvent`: local domain-level events for stats, reminders, pauses, and unlock reasons.
+- `StatsSummary`: derived counts for today, tonight, seven-day history, top blocked hosts, and latest block time.
 
 Storage is local-first through `src/shared/storage.ts`, with a `localStorage` fallback for Vite UI development.
 
@@ -45,6 +48,7 @@ Run these before handing off changes:
 ```bash
 npm run typecheck
 npm test
+npm run test:e2e
 npm run build
 ```
 

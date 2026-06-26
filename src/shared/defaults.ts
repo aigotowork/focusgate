@@ -16,5 +16,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   ],
   unlocks: [],
   commitment: DEFAULT_COMMITMENT,
-  unlockMinutes: 10
+  unlockMinutes: 10,
+  reminderMinutes: 30,
+  blockMode: "standard",
+  maxUnlocksPerNight: 3,
+  recordUnlockReason: true,
+  onboardingCompleted: false,
+  remindedSessionIds: []
 };

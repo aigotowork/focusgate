@@ -26,7 +26,13 @@ function mergeSettings(value?: Partial<AppSettings>): AppSettings {
     sites: value?.sites ?? DEFAULT_SETTINGS.sites,
     unlocks: value?.unlocks ?? [],
     commitment: value?.commitment ?? DEFAULT_SETTINGS.commitment,
-    unlockMinutes: value?.unlockMinutes ?? DEFAULT_SETTINGS.unlockMinutes
+    unlockMinutes: value?.unlockMinutes ?? DEFAULT_SETTINGS.unlockMinutes,
+    reminderMinutes: value?.reminderMinutes ?? DEFAULT_SETTINGS.reminderMinutes,
+    blockMode: value?.blockMode ?? DEFAULT_SETTINGS.blockMode,
+    maxUnlocksPerNight: value?.maxUnlocksPerNight ?? DEFAULT_SETTINGS.maxUnlocksPerNight,
+    recordUnlockReason: value?.recordUnlockReason ?? DEFAULT_SETTINGS.recordUnlockReason,
+    onboardingCompleted: value?.onboardingCompleted ?? DEFAULT_SETTINGS.onboardingCompleted,
+    remindedSessionIds: value?.remindedSessionIds ?? []
   };
 }
 
@@ -129,6 +135,13 @@ export async function pauseGuard(minutes: number): Promise<AppSettings> {
   }));
 }
 
+export async function markSessionReminded(sessionId: string): Promise<AppSettings> {
+  return updateAppSettings((settings) => ({
+    ...settings,
+    remindedSessionIds: Array.from(new Set([...settings.remindedSessionIds, sessionId])).slice(-30)
+  }));
+}
+
 export async function getGuardEvents(): Promise<GuardEvent[]> {
   const store = await storageGet([EVENTS_KEY]);
   return store[EVENTS_KEY] ?? [];
@@ -143,4 +156,17 @@ export async function recordGuardEvent(event: Omit<GuardEvent, "id" | "createdAt
   const current = await getGuardEvents();
   await storageSet({ [EVENTS_KEY]: [nextEvent, ...current].slice(0, MAX_EVENTS) });
   return nextEvent;
+}
+
+export async function clearGuardData(): Promise<void> {
+  const settings = await getAppSettings();
+  await storageSet({
+    [SETTINGS_KEY]: {
+      ...settings,
+      unlocks: [],
+      pauseUntil: undefined,
+      remindedSessionIds: []
+    },
+    [EVENTS_KEY]: []
+  });
 }
