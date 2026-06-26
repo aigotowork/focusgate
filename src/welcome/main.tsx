@@ -10,7 +10,7 @@ const scenarios = [
   {
     icon: Moon,
     title: "睡前放下",
-    copy: "保留默认的“晚安边界”，让娱乐网站在休息时间主动退场。"
+    copy: "保留默认的“晚安守护”，让娱乐网站在休息时间主动退场。"
   },
   {
     icon: BriefcaseBusiness,

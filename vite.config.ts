@@ -33,7 +33,7 @@ export default defineConfig({
   plugins: [react(), contentScriptBuildPlugin()],
   server: {
     host: "127.0.0.1",
-    port: 5179,
+    port: 51791,
     strictPort: false
   },
   build: {

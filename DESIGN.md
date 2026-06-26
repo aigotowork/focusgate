@@ -1,13 +1,13 @@
 # FocusGate / 守界 Design System
 
-This document is the visual source of truth for FocusGate / 守界. The current system is **Gate Daylight UI**: light-first, restrained, and calm enough for bedtime, work-focus, and digital-withdrawal boundaries. The default sleep rule group may still use “晚安边界” copy, but global product chrome must use FocusGate / 守界.
+This document is the visual source of truth for FocusGate / 守界. The current system is **Gate Daylight UI**: light-first, restrained, and calm enough for bedtime, work-focus, and digital-withdrawal boundaries. The default sleep rule group may still use “晚安守护” copy, but global product chrome must use FocusGate / 守界.
 
 ## Brand Identity
 
 - Global product name: `FocusGate / 守界`.
 - Main slogan: `该专注时，守住你的注意力边界。`
 - Legacy names `专注边界` and `Focus Boundary` may appear only in migration notes.
-- The default sleep rule group remains `晚安边界`.
+- The default sleep rule group remains `晚安守护`.
 - Use the gate-lock mark from `src/shared/brand.ts` and `public/icon.svg` for product chrome, manifest icons, welcome page, popup header, and subtle block/handoff branding.
 
 ## Principles
@@ -87,4 +87,4 @@ Each tone changes accents and default benefit/cost copy, but all built-in pages 
 - Runtime UI lives in `src/welcome/`, `src/popup/`, `src/options/`, `src/block/`, and `src/handoff/`.
 - `welcome.html` is the branded home surface and first-install entry point.
 - Default block-page templates and HTML sandbox helpers live in `src/shared/block-page.ts`.
-- Historical UI sketches are archived under `docs/archive/` and are not implementation guidance.
+- Historical UI sketches are archived under `project-docs/archive/` and are not implementation guidance.

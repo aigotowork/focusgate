@@ -49,7 +49,7 @@ describe("site rules", () => {
     expect(decision.allowed).toBe(false);
     expect(decision.reason).toBe("blocked");
     expect(decision.sessionId).toBe("2026-06-22");
-    expect(decision.ruleGroupName).toBe("晚安边界");
+    expect(decision.ruleGroupName).toBe("晚安守护");
   });
 
   it("allows unlisted sites during bedtime", () => {

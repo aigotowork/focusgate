@@ -1,0 +1,35 @@
+<svg width="1280" height="800" viewBox="0 0 1280 800" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">FocusGate / 守界 screenshot frame source</title>
+  <desc id="desc">Editable frame for composing final 1280 by 800 Chrome Web Store screenshots from real captured UI.</desc>
+  <defs>
+    <linearGradient id="frameMarkGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <filter id="frameShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#334155" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="800" fill="#f7f7fb"/>
+  <path d="M0 618 C180 556 340 638 530 572 C740 500 890 430 1100 474 C1190 493 1234 482 1280 462 V800 H0 Z" fill="#eef2ff"/>
+
+  <g transform="translate(70 58)">
+    <circle cx="30" cy="30" r="28" fill="white" stroke="#e0e7ff" stroke-width="1.5"/>
+    <rect x="15" y="13" width="30" height="35" rx="4" fill="#eef2ff" stroke="url(#frameMarkGradient)" stroke-width="2"/>
+    <path d="M15 24 Q30 11 45 24" stroke="url(#frameMarkGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <rect x="24" y="32" width="12" height="9" rx="2.5" fill="url(#frameMarkGradient)"/>
+    <path d="M26.5 32 V29 A3.5 3.5 0 0 1 33.5 29 V32" stroke="url(#frameMarkGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <text x="76" y="25" fill="#020617" font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="24" font-weight="800">FocusGate / 守界</text>
+    <text x="76" y="52" fill="#64748b" font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="16" font-weight="500">Chrome Web Store screenshot composition frame</text>
+  </g>
+
+  <g transform="translate(70 138)" filter="url(#frameShadow)">
+    <rect x="0" y="0" width="1140" height="598" rx="24" fill="white" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="22" y="22" width="1096" height="554" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-dasharray="12 12"/>
+    <text x="570" y="282" text-anchor="middle" fill="#334155" font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="32" font-weight="800">PLACE REAL 1280x800 UI SCREENSHOT HERE</text>
+    <text x="570" y="324" text-anchor="middle" fill="#64748b" font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="18" font-weight="500">Use this frame only as an editable source template. Replace the placeholder before submission.</text>
+  </g>
+
+  <text x="1210" y="766" text-anchor="end" fill="#94a3b8" font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="12" font-weight="650">SOURCE TEMPLATE · NOT FINAL STORE ART</text>
+</svg>

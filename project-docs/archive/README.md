@@ -8,5 +8,5 @@ Current sources of truth:
 
 - Product behavior: `prd.md`
 - Visual system: `DESIGN.md`
-- Runtime architecture: `docs/architecture.md`
+- Runtime architecture: `project-docs/architecture.md`
 - Actual UI implementation: `src/popup/`, `src/options/`, `src/block/`, and `src/handoff/`

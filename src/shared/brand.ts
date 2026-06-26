@@ -6,7 +6,7 @@ export const BRAND = {
   shortDescription: "用规则组为睡眠、工作和戒断场景建立可执行的网站边界。",
   legacyNameZh: "专注边界",
   legacyNameEn: "Focus Boundary",
-  defaultSleepGroupName: "晚安边界"
+  defaultSleepGroupName: "晚安守护"
 } as const;
 
 export const BRAND_COLORS = {

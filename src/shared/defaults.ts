@@ -6,7 +6,7 @@ export const DEFAULT_RULE_GROUP_ID = "goodnight-boundary";
 
 export const DEFAULT_RULE_GROUP: RuleGroup = {
   id: DEFAULT_RULE_GROUP_ID,
-  name: "晚安边界",
+  name: "晚安守护",
   enabled: true,
   schedule: {
     enabled: true,

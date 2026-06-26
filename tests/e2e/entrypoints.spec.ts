@@ -8,7 +8,7 @@ test("popup entry renders the extension summary", async ({ page }) => {
   await expect(page.getByText("当前页面").first()).toBeVisible();
   await expect(page.getByText("今日阻断")).toBeVisible();
   await expect(page.getByText("今日解锁")).toBeVisible();
-  await expect(page.getByRole("button", { name: "加入到 晚安边界" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "加入到 晚安守护" })).toBeVisible();
 });
 
 test("welcome entry explains the FocusGate brand and links to setup", async ({ page }) => {
@@ -64,18 +64,18 @@ test("options saves per-group primary action settings", async ({ page }) => {
   await page.goto("/options.html");
   await page.getByRole("button", { name: "新建规则组" }).click();
   await page.getByRole("button", { name: /跳转链接/ }).click();
-  await page.getByPlaceholder("https://example.com/todo").fill("https://127.0.0.1:5179/options.html?todo=1");
+  await page.getByPlaceholder("https://example.com/todo").fill("https://127.0.0.1:51791/options.html?todo=1");
   await page.getByRole("button", { name: /完成设置|保存设置/ }).click();
   await expect(page.getByRole("button", { name: "已保存" })).toBeVisible();
 
   await page.reload();
   await page.getByRole("button", { name: /工作时间专注/ }).click();
-  await expect(page.getByPlaceholder("https://example.com/todo")).toHaveValue("https://127.0.0.1:5179/options.html?todo=1");
+  await expect(page.getByPlaceholder("https://example.com/todo")).toHaveValue("https://127.0.0.1:51791/options.html?todo=1");
 });
 
 test("block entry renders the bedtime boundary", async ({ page }) => {
   await page.goto("/block.html?site=youtube.com&group=goodnight-boundary");
-  await expect(page.getByText("晚安边界").first()).toBeVisible();
+  await expect(page.getByText("晚安守护").first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "现在是晚安时间" })).toBeVisible();
   await expect(page.getByText("已拦截访问：youtube.com")).toBeVisible();
   await expect(page.getByRole("button", { name: "关掉网页，我去睡了" })).toBeVisible();
@@ -182,7 +182,7 @@ test("block primary action can navigate to an external URL", async ({ page }) =>
         primaryActionLabel: "打开工作清单",
         primaryAction: {
           type: "external_url",
-          externalUrl: "http://127.0.0.1:5179/options.html?todo=1",
+          externalUrl: "http://127.0.0.1:51791/options.html?todo=1",
           handoffTitle: "回到正事",
           handoffHtml: ""
         },
@@ -201,7 +201,7 @@ test("block primary action can navigate to an external URL", async ({ page }) =>
 
   await page.goto("/block.html?site=bilibili.com&group=work-focus");
   await page.getByRole("button", { name: "打开工作清单" }).click();
-  await expect(page).toHaveURL("http://127.0.0.1:5179/options.html?todo=1");
+  await expect(page).toHaveURL("http://127.0.0.1:51791/options.html?todo=1");
 });
 
 test("block primary action can open a sandboxed handoff page", async ({ page }) => {
@@ -280,7 +280,7 @@ test("content reminder overlay appears on listed sites during the reminder windo
     "后进入限制时间"
   );
   await expect(page.locator("#goodnight-guard-reminder-root").evaluate((node) => node.shadowRoot?.textContent ?? "")).resolves.not.toContain(
-    "晚安边界"
+    "晚安守护"
   );
   const progressValue = await page.locator("#goodnight-guard-reminder-root").evaluate((node) => {
     return node.shadowRoot?.querySelector('[role="progressbar"]')?.getAttribute("aria-valuenow") ?? "";

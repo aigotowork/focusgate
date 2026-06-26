@@ -269,7 +269,7 @@ function OptionsApp(): JSX.Element {
 
         {isOnboarding && (
           <section className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
-            先保留默认的“晚安边界”，也可以新增“工作时间专注”等规则组。每个规则组都有自己的时间、站点、承诺语、提醒、阻断页和解锁限制。
+            先保留默认的“晚安守护”，也可以新增“工作时间专注”等规则组。每个规则组都有自己的时间、站点、承诺语、提醒、阻断页和解锁限制。
           </section>
         )}
 

@@ -37,8 +37,8 @@ Add tests with every behavioral change. Prioritize rule evaluation, schedule cal
 
 ## Commit & Pull Request Guidelines
 
-Use short, imperative commit messages such as `Add bedtime schedule model` or `Implement block page unlock flow`. Pull requests should include the problem, solution, verification commands, screenshots for UI changes, and links to relevant sections of `prd.md`, `DESIGN.md`, or `docs/architecture.md`.
+Use short, imperative commit messages such as `Add bedtime schedule model` or `Implement block page unlock flow`. Pull requests should include the problem, solution, verification commands, screenshots for UI changes, and links to relevant sections of `prd.md`, `DESIGN.md`, or `project-docs/architecture.md`.
 
 ## Agent-Specific Instructions
 
-Keep agent-facing guidance in English and user-facing product copy in Chinese unless a task says otherwise. Use `FocusGate / 守界` for global product chrome and keep “晚安边界” scoped to the default sleep rule group. Preserve the calm, light-first, low-stimulation product direction from `DESIGN.md`. Treat files under `docs/archive/` as historical context, not implementation guidance. Record ambiguity or design friction in documentation or issue notes instead of burying it in code comments.
+Keep agent-facing guidance in English and user-facing product copy in Chinese unless a task says otherwise. Use `FocusGate / 守界` for global product chrome and keep “晚安守护” scoped to the default sleep rule group. Preserve the calm, light-first, low-stimulation product direction from `DESIGN.md`. Treat files under `project-docs/archive/` as historical context, not implementation guidance. Record ambiguity or design friction in documentation or issue notes instead of burying it in code comments.

@@ -1,0 +1,75 @@
+name: Chrome Web Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "What to do with the packaged extension"
+        required: true
+        default: "upload"
+        type: choice
+        options:
+          - upload
+          - submit
+          - release
+          - status
+      publish_type:
+        description: "CWS API publishType for submit/release"
+        required: true
+        default: "DEFAULT_PUBLISH"
+        type: choice
+        options:
+          - DEFAULT_PUBLISH
+          - STAGED_PUBLISH
+      block_on_warnings:
+        description: "Fail submit/release when Chrome Web Store returns validation warnings"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  chrome-web-store:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+      CWS_SERVICE_ACCOUNT_JSON: ${{ secrets.CWS_SERVICE_ACCOUNT_JSON }}
+      CWS_PUBLISH_TYPE: ${{ inputs.publish_type }}
+      CWS_BLOCK_ON_WARNINGS: ${{ inputs.block_on_warnings }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        if: inputs.action == 'upload' || inputs.action == 'release'
+        run: npm test
+
+      - name: Build store package
+        if: inputs.action == 'upload' || inputs.action == 'release'
+        run: npm run package:store
+
+      - name: Upload package
+        if: inputs.action == 'upload'
+        run: npm run store:cws:upload
+
+      - name: Submit latest uploaded package
+        if: inputs.action == 'submit'
+        run: npm run store:cws:submit -- --block-on-warnings=${{ inputs.block_on_warnings }}
+
+      - name: Upload and submit package
+        if: inputs.action == 'release'
+        run: npm run store:cws:release -- --block-on-warnings=${{ inputs.block_on_warnings }}
+
+      - name: Fetch item status
+        if: inputs.action == 'status'
+        run: npm run store:cws:status

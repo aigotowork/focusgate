@@ -24,7 +24,7 @@ describe("settings migration", () => {
     expect(settings.ruleGroups).toHaveLength(1);
     expect(settings.ruleGroups[0]).toMatchObject({
       id: DEFAULT_RULE_GROUP_ID,
-      name: "晚安边界",
+      name: "晚安守护",
       commitment: "工作时间不要刷视频。",
       unlockMinutes: 5,
       reminderMinutes: 15,

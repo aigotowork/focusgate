@@ -11,7 +11,7 @@ const PopupView = ({ navigate }) => (
     <div className="bg-slate-800 p-4 flex justify-between items-center border-b border-slate-700">
       <div className="flex items-center gap-2">
         <Moon className="w-5 h-5 text-indigo-400" />
-        <span className="font-bold text-base tracking-wide">晚安边界</span>
+        <span className="font-bold text-base tracking-wide">晚安守护</span>
       </div>
       <button onClick={() => navigate('settings')} className="text-slate-400 hover:text-white transition-colors">
         <Settings className="w-5 h-5" />
@@ -190,7 +190,7 @@ const SettingsView = () => {
       <div className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col">
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
           <Moon className="w-6 h-6 text-indigo-400" />
-          <span className="font-bold text-lg text-white">晚安边界</span>
+          <span className="font-bold text-lg text-white">晚安守护</span>
         </div>
         <nav className="flex-1 p-4 space-y-1">
           {[

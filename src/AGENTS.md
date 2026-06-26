@@ -9,6 +9,6 @@
 
 ## Implementation Rules
 
-Use Chinese for user-facing product copy and English for code comments or agent guidance. Follow `DESIGN.md` for FocusGate / 守界: light-first surfaces, low-stimulation motion, clear blocking state, and intentional friction for unlock actions. Use “晚安边界” only for the default sleep rule group.
+Use Chinese for user-facing product copy and English for code comments or agent guidance. Follow `DESIGN.md` for FocusGate / 守界: light-first surfaces, low-stimulation motion, clear blocking state, and intentional friction for unlock actions. Use “晚安守护” only for the default sleep rule group.
 
 When changing blocking behavior, update tests in `tests/` first or in the same change. Prioritize deterministic functions in `shared/` over direct browser API tests.
