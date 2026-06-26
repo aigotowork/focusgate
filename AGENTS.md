@@ -2,37 +2,42 @@
 
 ## Project Structure & Module Organization
 
-This repository is currently a product/design seed for **GoodNight Guard**, a Chrome/Edge extension that reminds users to sleep and blocks distracting sites after bedtime.
+This repository is a Manifest V3 Chrome/Edge extension for **GoodNight Guard**, a bedtime website blocker with React UI surfaces and testable shared rules.
 
 - `prd.md` is the product source of truth. Read it before changing scope or behavior.
 - `DESIGN.md` defines the Nightfall UI visual system, copy tone, and interaction rules.
-- `ui.example.js` is a React/Tailwind/Lucide reference prototype for popup, block page, and options UI.
+- `src/shared/` contains schedule, domain, storage, and event logic.
+- `src/background/` contains MV3 service worker wiring.
+- `src/popup/`, `src/options/`, and `src/block/` are independent React entry points.
+- `tests/` contains Vitest unit tests and Playwright smoke tests.
 
-When implementation is added, keep extension code under `src/` with boundaries such as `src/background/`, `src/content/`, `src/popup/`, `src/options/`, `src/block/`, and `src/shared/`. Put assets in `public/` or `assets/`, and tests in `tests/` or beside the covered module.
+Keep static extension assets in `public/`. Build output goes to ignored `dist/`.
 
 ## Build, Test, and Development Commands
 
-No package manifest or build system is checked in yet. When one is introduced, define canonical scripts in `package.json`. Expected commands:
+Canonical commands are defined in `package.json`:
 
-- `npm install` or `pnpm install`: install dependencies.
+- `npm install`: install dependencies from `package-lock.json`.
 - `npm run dev`: run the extension UI locally on a non-default port.
+- `npm run typecheck`: run TypeScript checks.
+- `npm test`: run Vitest unit tests for shared rules.
+- `npm run test:e2e`: run Playwright smoke tests for popup, options, and block pages.
 - `npm run build`: produce the browser extension bundle.
-- `npm test`: run the automated test suite.
-- `npm run lint`: run formatting and static checks.
+- `npm run lint`: alias for type checking.
 
 Do not invent local-only commands without documenting them.
 
 ## Coding Style & Naming Conventions
 
-Prefer TypeScript unless the project explicitly stays JavaScript-only. Use React components, Tailwind classes aligned with `DESIGN.md`, and Lucide icons for controls. Name components in `PascalCase`, hooks as `useSomething`, utility files in `camelCase` or `kebab-case`, and extension entry folders by browser role, for example `background`, `content`, `popup`, `options`, and `block`.
+Use TypeScript, React, Tailwind classes aligned with `DESIGN.md`, and Lucide icons for controls. Name components in `PascalCase`, hooks as `useSomething`, utilities in `camelCase` or `kebab-case`, and extension folders by browser role.
 
 ## Testing Guidelines
 
-Add tests with every behavioral change once a framework exists. Prioritize rule evaluation, schedule calculations, unlock friction, storage migration, and UI flows. Use behavior names such as `blocksRestrictedSiteAfterBedtime` or `BlockPage.unlockCountdown.test.tsx`. For UI work, include at least one browser-level verification path.
+Add tests with every behavioral change. Prioritize rule evaluation, schedule calculations, unlock expiry, storage migration, and UI flows. Use behavior names such as `blocksRestrictedSiteAfterBedtime`. Keep browser-agnostic logic in `src/shared/` so Vitest can cover it directly.
 
 ## Commit & Pull Request Guidelines
 
-This directory is not currently a Git repository, so no existing commit convention is available. Use short, imperative messages such as `Add bedtime schedule model` or `Implement block page unlock flow`. Pull requests should include the problem, solution, verification commands, screenshots for UI changes, and links to relevant sections of `prd.md` or `DESIGN.md`.
+Use short, imperative commit messages such as `Add bedtime schedule model` or `Implement block page unlock flow`. Pull requests should include the problem, solution, verification commands, screenshots for UI changes, and links to relevant sections of `prd.md`, `DESIGN.md`, or `docs/architecture.md`.
 
 ## Agent-Specific Instructions
 
