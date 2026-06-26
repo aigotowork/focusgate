@@ -58,7 +58,7 @@ export function getSleepSessionId(schedule: SleepSchedule, date = new Date()): s
 }
 
 export function isReminderWindowActive(schedule: SleepSchedule, reminderMinutes: number, date = new Date()): boolean {
-  if (!schedule.enabled) {
+  if (!schedule.enabled || reminderMinutes <= 0) {
     return false;
   }
 
@@ -70,6 +70,57 @@ export function isReminderWindowActive(schedule: SleepSchedule, reminderMinutes:
   };
 
   return isScheduleActive(reminderSchedule, date);
+}
+
+export function getNextReminderDate(group: RuleGroup, from = new Date()): Date | undefined {
+  if (!group.enabled || !group.schedule.enabled || group.reminderMinutes <= 0) {
+    return undefined;
+  }
+
+  const startMinutes = parseClockTime(group.schedule.startTime);
+  const candidates: Date[] = [];
+
+  for (let offset = 0; offset <= 7; offset += 1) {
+    const day = new Date(from);
+    day.setDate(day.getDate() + offset);
+    if (!group.schedule.days.includes(day.getDay() as SleepSchedule["days"][number])) {
+      continue;
+    }
+
+    const startDate = new Date(day);
+    startDate.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
+    const reminderDate = new Date(startDate.getTime() - group.reminderMinutes * 60000);
+    if (reminderDate.getTime() > from.getTime()) {
+      candidates.push(reminderDate);
+    }
+  }
+
+  return candidates.sort((a, b) => a.getTime() - b.getTime())[0];
+}
+
+export function getNextScheduleStartDate(group: RuleGroup, from = new Date()): Date | undefined {
+  if (!group.enabled || !group.schedule.enabled) {
+    return undefined;
+  }
+
+  const startMinutes = parseClockTime(group.schedule.startTime);
+  const candidates: Date[] = [];
+
+  for (let offset = 0; offset <= 7; offset += 1) {
+    const day = new Date(from);
+    day.setDate(day.getDate() + offset);
+    if (!group.schedule.days.includes(day.getDay() as SleepSchedule["days"][number])) {
+      continue;
+    }
+
+    const startDate = new Date(day);
+    startDate.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
+    if (startDate.getTime() > from.getTime()) {
+      candidates.push(startDate);
+    }
+  }
+
+  return candidates.sort((a, b) => a.getTime() - b.getTime())[0];
 }
 
 export function evaluateReminder(

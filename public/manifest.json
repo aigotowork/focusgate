@@ -11,7 +11,7 @@
     "default_title": "晚安边界"
   },
   "icons": {
-    "128": "icon.svg"
+    "128": "icon-128.png"
   },
   "options_page": "options.html",
   "background": {

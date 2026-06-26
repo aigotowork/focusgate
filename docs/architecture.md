@@ -8,6 +8,8 @@ GoodNight Guard is a Manifest V3 browser extension for Chrome and Edge. The MVP 
 
 The implementation uses `chrome.webNavigation.onBeforeNavigate` plus `chrome.tabs.update` instead of legacy blocking `webRequest`. The service worker initializes defaults, opens onboarding when needed, evaluates top-frame navigation across all enabled rule groups, records domain-level events with rule group attribution, redirects to `block.html`, sends reminder notifications, and periodically removes expired unlock sessions.
 
+Time-based work is scheduled with one exact `scheduleTick` alarm for the next reminder or block start across all rule groups. When it fires, the background checks reminders, scans currently open HTTP(S) tabs once, blocks tabs that became restricted while already open, and schedules the next exact tick. This avoids continuous per-minute polling for rule starts.
+
 Future stricter blocking can add `declarativeNetRequest` rules once the rule model stabilizes. Do not rely on MV3 service worker memory staying alive; use `chrome.alarms` for reminder and cleanup work.
 
 ## Permissions
@@ -16,7 +18,7 @@ Future stricter blocking can add `declarativeNetRequest` rules once the rule mod
 - `tabs`: read/update active tabs and redirect blocked navigation.
 - `activeTab`: inspect the current page from the popup.
 - `webNavigation`: observe top-frame navigation for blocking decisions.
-- `alarms`: schedule reminder checks and expired-unlock cleanup.
+- `alarms`: schedule the next exact reminder/block tick and low-frequency expired-unlock cleanup.
 - `notifications`: show the one-per-session bedtime reminder.
 - `<all_urls>` host access: evaluate user-defined restricted domains across sites.
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateReminder,
+  getNextReminderDate,
+  getNextScheduleStartDate,
   getSleepSessionId,
   isReminderWindowActive,
   isScheduleActive,
@@ -54,6 +56,22 @@ describe("sleep schedule", () => {
   it("detects the reminder window before bedtime", () => {
     expect(isReminderWindowActive(schedule, 30, new Date("2026-06-22T22:45:00"))).toBe(true);
     expect(isReminderWindowActive(schedule, 30, new Date("2026-06-22T22:15:00"))).toBe(false);
+  });
+
+  it("does not treat zero reminder minutes as an all-day reminder", () => {
+    expect(isReminderWindowActive(schedule, 0, new Date("2026-06-22T12:00:00"))).toBe(false);
+  });
+
+  it("finds the next exact reminder start", () => {
+    expect(getNextReminderDate(group, new Date("2026-06-22T21:00:00"))?.toISOString()).toBe(
+      new Date("2026-06-22T22:30:00").toISOString()
+    );
+  });
+
+  it("finds the next exact block start", () => {
+    expect(getNextScheduleStartDate(group, new Date("2026-06-22T21:00:00"))?.toISOString()).toBe(
+      new Date("2026-06-22T23:00:00").toISOString()
+    );
   });
 
   it("does not remind twice in the same sleep session", () => {
